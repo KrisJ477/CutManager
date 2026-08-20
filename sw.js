@@ -1,27 +1,15 @@
-<<<<<<< HEAD
-// Minimal cache-first service worker.
-// Its main job is to satisfy Chrome's installability requirement (a fetch
-// handler must exist), with offline use as a genuine bonus on a shop floor
-// with patchy wifi.
-
-const CACHE = 'cutguide-v1';
-=======
 // Cache-first for the app shell, with runtime caching so cut lists fetched
-// once stay available offline.
+// once stay available offline. Bump CACHE on every meaningful change so
+// old installs evict themselves.
 
-const CACHE = 'cutguide-v2';
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
+const CACHE = 'cutguide-v3';
 const ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon.svg',
-<<<<<<< HEAD
-  './icon-maskable.svg'
-=======
   './icon-maskable.svg',
   './lists/index.json'
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
 ];
 
 self.addEventListener('install', event => {
@@ -41,12 +29,6 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-<<<<<<< HEAD
-  if (event.request.method !== 'GET') return;
-  event.respondWith(
-    caches.match(event.request).then(hit => hit || fetch(event.request))
-  );
-=======
   const req = event.request;
   if (req.method !== 'GET') return;
 
@@ -66,5 +48,4 @@ self.addEventListener('fetch', event => {
   }
 
   event.respondWith(caches.match(req).then(hit => hit || fetch(req)));
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
 });

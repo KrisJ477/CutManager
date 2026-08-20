@@ -14,33 +14,6 @@
   html, body { overscroll-behavior: none; }
   body {
     margin: 0; min-height: 100dvh;
-<<<<<<< HEAD
-    padding: max(.75rem, env(safe-area-inset-top)) .75rem max(.75rem, env(safe-area-inset-bottom));
-    background: #14161a; color: #e8eaed;
-    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-    display: flex; flex-direction: column; align-items: center;
-    gap: .6rem;
-    user-select: none;
-  }
-  .colhead {
-    font-size: .65rem; font-weight: 700; letter-spacing: .14em;
-    text-transform: uppercase; color: #55585e; text-align: center;
-  }
-
-  #queue {
-    width: 100%; display: flex; flex-direction: column-reverse; gap: .25rem;
-    align-items: center; max-height: 7rem; overflow-y: auto;
-  }
-  .qitem {
-    width: 100%; text-align: center; font-variant-numeric: tabular-nums;
-    background: #1c1f24; border: 1px solid #24272c; border-radius: .4rem;
-    padding: .3rem; color: #8b9098; font-size: .95rem; font-weight: 600;
-  }
-  .qitem.next { color: #e8eaed; border-color: #3d424a; background: #23272d; }
-
-  #stage { display: flex; align-items: center; justify-content: center; gap: .4rem; width: 100%; }
-  .arrow { flex: 0 0 auto; width: 2.4rem; height: 2.4rem; color: #ffc400; visibility: hidden; }
-=======
     padding: max(.6rem, env(safe-area-inset-top)) .7rem max(.6rem, env(safe-area-inset-bottom));
     background: #14161a; color: #e8eaed;
     font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -52,7 +25,6 @@
     text-transform: uppercase; color: #55585e; text-align: center;
   }
 
-  /* ---- job picker ---- */
   #jobRow { width: 100%; display: flex; gap: .4rem; align-items: center; }
   select {
     flex: 1; font: inherit; font-size: .8rem; background: #1c1f24; color: #e8eaed;
@@ -74,20 +46,14 @@
 
   #stage { display: flex; align-items: center; justify-content: center; gap: .35rem; width: 100%; }
   .arrow { flex: 0 0 auto; width: 2.2rem; height: 2.2rem; color: #ffc400; visibility: hidden; }
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
   .arrow.show { visibility: visible; animation: nudge .9s ease-in-out infinite; }
   #arrowL.show { animation-name: nudgeL; }
   @keyframes nudge  { 0%,100% { transform: translateX(0); } 50% { transform: translateX(.3rem); } }
   @keyframes nudgeL { 0%,100% { transform: translateX(0); } 50% { transform: translateX(-.3rem); } }
 
   #frame {
-<<<<<<< HEAD
-    flex: 1 1 auto; border-radius: .9rem; padding: .9rem;
-    display: flex; flex-direction: column; gap: .6rem;
-=======
     flex: 1 1 auto; border-radius: .9rem; padding: .85rem;
     display: flex; flex-direction: column; gap: .55rem;
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
     background: #55585e; transition: background-color .12s linear;
   }
   #frame.onTarget { animation: flash .2s steps(1) infinite; }
@@ -95,11 +61,7 @@
     0%, 49%   { background-color: #17c964; }
     50%, 100% { background-color: #0a3d22; }
   }
-<<<<<<< HEAD
-  /* No !important inside keyframes - the spec ignores it, which kills the rule. */
-=======
   /* No !important inside keyframes - the spec ignores it, killing the rule. */
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
   #frame.reject { animation: rejectFlash .2s steps(1) 3; }
   @keyframes rejectFlash {
     0%, 49%   { background-color: #ff3b30; }
@@ -108,48 +70,6 @@
   #frame.done { background: #24272c !important; animation: none; }
 
   .label {
-<<<<<<< HEAD
-    font-size: .68rem; font-weight: 700; letter-spacing: .1em;
-    text-transform: uppercase; color: #14161a; opacity: .75;
-    margin-bottom: .25rem; padding-left: .15rem;
-  }
-  .box {
-    background: #14161a; border-radius: .5rem; padding: .35rem .6rem;
-    display: flex; align-items: baseline; justify-content: center; gap: .3rem;
-    height: 4.6rem;
-  }
-  .num {
-    font-variant-numeric: tabular-nums;
-    font-size: 3.2rem; font-weight: 700; line-height: 1; letter-spacing: -.02em;
-  }
-  #targetNum { color: #e8eaed; }
-  #currentNum { color: #ffc400; }
-  .unit { font-size: 1.1rem; font-weight: 600; color: #8b9098; }
-
-  #done {
-    width: 100%; display: flex; flex-direction: column; gap: .25rem;
-    max-height: 7rem; overflow-y: auto;
-  }
-  .ditem {
-    display: flex; justify-content: space-between; align-items: baseline;
-    background: #16241b; border: 1px solid #1f3d2a; border-radius: .4rem;
-    padding: .3rem .6rem; font-variant-numeric: tabular-nums;
-  }
-  .ditem .v { color: #17c964; font-weight: 700; font-size: .95rem; }
-  .ditem .t { color: #5c7566; font-size: .72rem; }
-  .ditem.fresh { animation: pop .5s ease-out; }
-  @keyframes pop {
-    0%   { transform: translateY(-1rem) scale(1.06); background: #1f5c38; }
-    100% { transform: none; }
-  }
-
-  #panel { width: 100%; display: flex; flex-direction: column; gap: .55rem; margin-top: auto; }
-  .ctl { display: flex; align-items: center; gap: .5rem; font-size: .8rem; color: #8b9098; }
-  input[type=range] { flex: 1; accent-color: #ffc400; height: 2rem; }
-  output { min-width: 4rem; font-variant-numeric: tabular-nums; text-align: right; }
-  button {
-    font: inherit; font-size: .85rem; font-weight: 700; padding: .7rem .9rem;
-=======
     font-size: .64rem; font-weight: 700; letter-spacing: .1em;
     text-transform: uppercase; color: #14161a; opacity: .75;
     margin-bottom: .2rem; padding-left: .15rem;
@@ -186,23 +106,10 @@
   output { min-width: 3.6rem; font-variant-numeric: tabular-nums; text-align: right; }
   button {
     font: inherit; font-size: .82rem; font-weight: 700; padding: .65rem .8rem;
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
     border: 0; border-radius: .5rem; background: #ffc400; color: #14161a;
     cursor: pointer; touch-action: manipulation; flex: 1;
   }
   button.ghost { background: #24272c; color: #b6bac0; }
-<<<<<<< HEAD
-  #status { font-size: .75rem; color: #6f747b; text-align: center; min-height: 1.1em; }
-  #diffOut { font-size: .78rem; color: #6f747b; text-align: center; font-variant-numeric: tabular-nums; }
-  .simRow.hidden { display: none; }
-
-  #badges { display: flex; gap: .4rem; justify-content: center; flex-wrap: wrap; }
-  .badge {
-    font-size: .6rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-    padding: .18rem .5rem; border-radius: 1rem; background: #24272c; color: #6f747b;
-  }
-  .badge.on { background: #2f2410; color: #ffc400; }
-=======
   #status { font-size: .72rem; color: #6f747b; text-align: center; min-height: 1.1em; }
   #diffOut { font-size: .76rem; color: #6f747b; text-align: center; font-variant-numeric: tabular-nums; }
   .simRow.hidden { display: none; }
@@ -211,8 +118,8 @@
   .badge { font-size: .58rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
            padding: .16rem .45rem; border-radius: 1rem; background: #24272c; color: #6f747b; }
   .badge.on { background: #2f2410; color: #ffc400; }
+  #verBadge { background: #1a2230; color: #6f8cb0; }
 
-  /* ---- storage-location prompt ---- */
   #locOverlay {
     position: fixed; inset: 0; background: #0b0d10ee; z-index: 20;
     display: none; flex-direction: column; align-items: center; justify-content: center;
@@ -223,8 +130,7 @@
   #locCut { font-size: .95rem; color: #ffc400; font-weight: 700; font-variant-numeric: tabular-nums; }
   #locValue {
     font-size: 4.5rem; font-weight: 700; font-variant-numeric: tabular-nums;
-    color: #e8eaed; min-height: 5rem; line-height: 1.1;
-    letter-spacing: .05em;
+    color: #e8eaed; min-height: 5rem; line-height: 1.1; letter-spacing: .05em;
   }
   #pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; width: min(20rem, 100%); }
   #pad button { font-size: 1.4rem; padding: .8rem 0; background: #23272d; color: #e8eaed; }
@@ -235,25 +141,20 @@
              border-radius: .45rem; display: none; }
   #locNote.show { display: block; }
 
-  /* ---- power saving dim veil ---- */
   #veil {
     position: fixed; inset: 0; background: #000; z-index: 15;
     opacity: 0; pointer-events: none; transition: opacity .6s linear;
   }
   #veil.pointer { pointer-events: auto; }
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
 </style>
 </head>
 <body>
 
-<<<<<<< HEAD
-=======
   <div id="jobRow">
     <select id="jobSel"><option>Loading lists...</option></select>
     <button id="reload" class="ghost" style="flex:0 0 auto">&#8635;</button>
   </div>
 
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
   <div class="colhead">Cut list &mdash; next at bottom</div>
   <div id="queue"></div>
 
@@ -280,12 +181,10 @@
 
   <div id="diffOut"></div>
   <div id="badges">
+    <span class="badge" id="verBadge">v?</span>
     <span class="badge" id="wakeBadge">screen lock off</span>
     <span class="badge" id="linkBadge">no tape</span>
-<<<<<<< HEAD
-=======
     <span class="badge" id="powerBadge">active</span>
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
   </div>
 
   <div class="colhead">Confirmed cuts</div>
@@ -298,21 +197,12 @@
     </div>
     <div class="ctl">
       <button id="save">Save</button>
-<<<<<<< HEAD
-      <button id="reset" class="ghost">New list</button>
-      <button id="connect" class="ghost">Connect</button>
-    </div>
-    <div id="status">Tap Connect and pick your tape.</div>
-  </div>
-
-=======
       <button id="export" class="ghost">CSV</button>
       <button id="connect" class="ghost">Connect</button>
     </div>
     <div id="status">Pick a job, then connect.</div>
   </div>
 
-  <!-- storage location prompt -->
   <div id="locOverlay">
     <div id="locTitle">Stored at position</div>
     <div id="locCut"></div>
@@ -331,8 +221,10 @@
 
   <div id="veil"></div>
 
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
 <script>
+// Bump this on every deploy so the running build is visible on screen.
+const APP_VERSION = 'v3 2026-08-20';
+
 // UUIDs from REEKON BLE Connection Guide and SDK, Rev 1.4
 const POSITION_SERVICE = '7ad09b02-1f68-4c68-922f-a063dfdb7912';
 const LIVE_MEASUREMENT = '0d689f63-fdf9-4f0f-8522-736d4723ad2f';
@@ -342,76 +234,10 @@ const BATTERY_SERVICE  = 'battery_service';
 const OPCODE_MEASUREMENT = 4;
 
 const RED_AT = 100, GREEN_AT = 1, ON_TARGET_TOL = 0.5;
-<<<<<<< HEAD
-
-const frameEl = document.getElementById('frame');
-const arrowL = document.getElementById('arrowL');
-const arrowR = document.getElementById('arrowR');
-const targetNum = document.getElementById('targetNum');
-const currentNum = document.getElementById('currentNum');
-const queueEl = document.getElementById('queue');
-const doneEl = document.getElementById('done');
-const sim = document.getElementById('sim');
-const simOut = document.getElementById('simOut');
-const simRow = document.getElementById('simRow');
-const btn = document.getElementById('connect');
-const saveBtn = document.getElementById('save');
-const resetBtn = document.getElementById('reset');
-const statusEl = document.getElementById('status');
-const diffOut = document.getElementById('diffOut');
-const wakeBadge = document.getElementById('wakeBadge');
-const linkBadge = document.getElementById('linkBadge');
-
-let device = null, liveChar = null, commChar = null;
-let pollTimer = null, running = false, rejecting = false;
-let currentMm = 0, queue = [], confirmed = [];
-
-/* ---------- screen wake lock ---------- */
-// If the screen sleeps, Chrome throttles the page and the BLE link drops.
-let wakeLock = null;
-
-async function acquireWakeLock() {
-  if (!('wakeLock' in navigator)) { wakeBadge.textContent = 'no wake lock api'; return; }
-  try {
-    wakeLock = await navigator.wakeLock.request('screen');
-    wakeBadge.textContent = 'screen stays on';
-    wakeBadge.classList.add('on');
-    wakeLock.addEventListener('release', () => {
-      wakeBadge.textContent = 'screen lock off';
-      wakeBadge.classList.remove('on');
-    });
-  } catch (e) {
-    wakeBadge.textContent = 'wake lock refused';
-    wakeBadge.classList.remove('on');
-  }
-}
-
-// Android silently drops the lock whenever the page is hidden, so re-take it
-// every time we come back to the foreground.
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') acquireWakeLock();
-});
-
-/* ---------- cut list ---------- */
-function newList(n = 7) {
-  queue = Array.from({length: n}, () => Math.round(80 + Math.random() * 220));
-  confirmed = [];
-  renderLists(); render();
-}
-
-function renderLists() {
-  queueEl.innerHTML = '';
-  queue.forEach((mm, i) => {
-    const d = document.createElement('div');
-    d.className = 'qitem' + (i === queue.length - 1 ? ' next' : '');
-    d.textContent = mm + ' mm';
-=======
 const DEADBAND_UM = 200;
 
 // Power saving stages, seconds of inactivity
-const DIM_AFTER    = 45;    // veil to 60%
-const DEEP_AFTER   = 180;   // veil to 94% + slow polling
-const RELEASE_AFTER= 420;   // give up the wake lock entirely
+const DIM_AFTER = 45, DEEP_AFTER = 180, RELEASE_AFTER = 420;
 const IDLE_HZ = 2, ACTIVE_HZ = 8;
 
 const $ = id => document.getElementById(id);
@@ -421,15 +247,17 @@ const queueEl=$('queue'), doneEl=$('done');
 const sim=$('sim'), simOut=$('simOut'), simRow=$('simRow');
 const btn=$('connect'), saveBtn=$('save'), exportBtn=$('export');
 const statusEl=$('status'), diffOut=$('diffOut');
-const wakeBadge=$('wakeBadge'), linkBadge=$('linkBadge'), powerBadge=$('powerBadge');
+const wakeBadge=$('wakeBadge'), linkBadge=$('linkBadge'), powerBadge=$('powerBadge'), verBadge=$('verBadge');
 const jobSel=$('jobSel'), reloadBtn=$('reload');
 const locOverlay=$('locOverlay'), locValue=$('locValue'), locCut=$('locCut'), locNote=$('locNote');
 const veil=$('veil');
 
+verBadge.textContent = APP_VERSION;
+
 let device=null, liveChar=null, commChar=null;
 let pollTimer=null, running=false, rejecting=false;
 let currentMm=0, queue=[], confirmed=[], jobName='', jobId='';
-let lastActivity=Date.now(), lastUm=null, isActive=true, powerStage=0;
+let lastActivity=Date.now(), lastUm=null, powerStage=0;
 let pendingCut=null, locBuf='';
 
 /* ================= cut lists from git ================= */
@@ -476,72 +304,28 @@ function renderLists() {
     const d = document.createElement('div');
     d.className = 'qitem' + (i === queue.length - 1 ? ' next' : '');
     d.innerHTML = '<span class="id">' + c.id + '</span><span>' + c.mm + ' mm</span>';
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
     queueEl.appendChild(d);
   });
   doneEl.innerHTML = '';
   confirmed.forEach((c, i) => {
     const d = document.createElement('div');
     d.className = 'ditem' + (i === 0 ? ' fresh' : '');
-<<<<<<< HEAD
-    d.innerHTML = '<span class="v">' + c.mm + ' mm</span><span class="t">' + c.time + '</span>';
-=======
     const loc = c.comment ? '&hellip;' : c.location;
     d.innerHTML = '<span class="v">' + c.mm + ' mm</span>'
                 + '<span class="loc">' + loc + '</span>'
                 + '<span class="t">' + c.time + '</span>';
     d.title = c.comment || '';
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
     doneEl.appendChild(d);
   });
 }
 
 function onTarget() {
   if (!queue.length) return false;
-<<<<<<< HEAD
-  return Math.abs(Math.round(currentMm) - queue[queue.length - 1]) <= ON_TARGET_TOL;
-}
-
-function attemptSave() {
-  if (!queue.length) return;
-  if (!onTarget()) { rejectSave(); return; }
-  const mm = queue.pop();
-  confirmed.unshift({ mm, time: new Date().toTimeString().slice(0, 8) });
-  if (navigator.vibrate) navigator.vibrate(40);
-  renderLists(); render();
-  if (!queue.length) statusEl.textContent = 'Cut list complete \u2014 ' + confirmed.length + ' cuts.';
-}
-
-function rejectSave() {
-  rejecting = true;
-  frameEl.classList.remove('reject');
-  void frameEl.offsetWidth;
-  frameEl.classList.add('reject');
-  if (navigator.vibrate) navigator.vibrate([60, 60, 60]);
-  statusEl.textContent = 'Rejected \u2014 not on target.';
-}
-
-frameEl.addEventListener('animationend', e => {
-  if (e.animationName === 'rejectFlash') {
-    frameEl.classList.remove('reject');
-    rejecting = false;
-    render();
-  }
-});
-
-saveBtn.addEventListener('click', attemptSave);
-resetBtn.addEventListener('click', () => { newList(); statusEl.textContent = 'New cut list generated.'; });
-sim.addEventListener('input', () => { if (!running) { currentMm = Number(sim.value); render(); } });
-
-function render() {
-  const target = queue.length ? queue[queue.length - 1] : null;
-=======
   return Math.abs(Math.round(currentMm) - queue[queue.length - 1].mm) <= ON_TARGET_TOL;
 }
 
 function render() {
   const target = queue.length ? queue[queue.length - 1].mm : null;
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
   const shownCurrent = Math.round(currentMm);
   currentNum.textContent = shownCurrent;
   simOut.textContent = Math.round(Number(sim.value)) + ' mm';
@@ -557,13 +341,7 @@ function render() {
   frameEl.classList.remove('done');
   targetNum.textContent = target;
 
-<<<<<<< HEAD
-  const diff = shownCurrent - target;
-  const err = Math.abs(diff);
-
-=======
   const diff = shownCurrent - target, err = Math.abs(diff);
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
   if (err <= ON_TARGET_TOL) {
     frameEl.classList.add('onTarget');
     if (!rejecting) frameEl.style.backgroundColor = '';
@@ -584,10 +362,6 @@ function errorColor(err) {
   return 'hsl(' + (120 * Math.pow(t, 1.6)).toFixed(1) + ', 72%, 44%)';
 }
 
-<<<<<<< HEAD
-/* ---------- BLE ---------- */
-btn.addEventListener('click', async () => {
-=======
 /* ================= save / reject / storage prompt ================= */
 function attemptSave() {
   if (!queue.length || pendingCut) return;
@@ -701,7 +475,6 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && running) acquireWakeLock();
 });
 
-// Any human or blade activity resets the power timers.
 function poke() {
   lastActivity = Date.now();
   if (powerStage !== 0) setPowerStage(0);
@@ -740,7 +513,6 @@ setInterval(() => {
 /* ================= BLE ================= */
 btn.addEventListener('click', async () => {
   poke();
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
   if (device && device.gatt.connected) { device.gatt.disconnect(); return; }
   if (!navigator.bluetooth) { statusEl.textContent = 'Web Bluetooth unavailable in this browser.'; return; }
   try {
@@ -764,16 +536,8 @@ btn.addEventListener('click', async () => {
 
     btn.textContent = 'Disconnect';
     simRow.classList.add('hidden');
-<<<<<<< HEAD
-    linkBadge.textContent = 'tape linked';
-    linkBadge.classList.add('on');
-    statusEl.textContent = commChar
-      ? 'Live. Press save on the tape.'
-      : 'Live view only \u2014 no sync notifications.';
-=======
     linkBadge.textContent = 'tape linked'; linkBadge.classList.add('on');
     statusEl.textContent = commChar ? 'Live. Press save on the tape.' : 'Live view only.';
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
     acquireWakeLock();
     running = true;
     tick();
@@ -787,11 +551,7 @@ btn.addEventListener('click', async () => {
 function onSyncNotify(ev) {
   const dv = ev.target.value;
   if (dv.byteLength < 8) return;
-<<<<<<< HEAD
-  if (dv.getUint32(0, true) === OPCODE_MEASUREMENT) attemptSave();
-=======
   if (dv.getUint32(0, true) === OPCODE_MEASUREMENT) { poke(); attemptSave(); }
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
 }
 
 async function tick() {
@@ -799,12 +559,6 @@ async function tick() {
   const t0 = performance.now();
   try {
     const v = await liveChar.readValue();
-<<<<<<< HEAD
-    currentMm = v.getInt32(0, true) / 1000;   // SDK: 4 bytes, micrometres
-    render();
-  } catch (e) { /* transient */ }
-  pollTimer = setTimeout(tick, Math.max(0, 125 - (performance.now() - t0)));
-=======
     const um = v.getInt32(0, true);           // SDK: 4 bytes, micrometres
     if (lastUm === null || Math.abs(um - lastUm) >= DEADBAND_UM) { lastUm = um; poke(); }
     currentMm = um / 1000;
@@ -812,7 +566,6 @@ async function tick() {
   } catch (e) { /* transient */ }
   const hz = powerStage >= 2 ? IDLE_HZ : ACTIVE_HZ;
   pollTimer = setTimeout(tick, Math.max(0, (1000 / hz) - (performance.now() - t0)));
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
 }
 
 function onDisconnect() {
@@ -821,15 +574,6 @@ function onDisconnect() {
   pollTimer = null; liveChar = null; commChar = null;
   btn.textContent = 'Connect';
   simRow.classList.remove('hidden');
-<<<<<<< HEAD
-  linkBadge.textContent = 'no tape';
-  linkBadge.classList.remove('on');
-  statusEl.textContent = 'Tape disconnected.';
-  if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
-}
-
-/* ---------- PWA ---------- */
-=======
   linkBadge.textContent = 'no tape'; linkBadge.classList.remove('on');
   statusEl.textContent = 'Tape disconnected.';
   releaseWakeLock();
@@ -838,17 +582,12 @@ function onDisconnect() {
 sim.addEventListener('input', () => { poke(); if (!running) { currentMm = Number(sim.value); render(); } });
 saveBtn.addEventListener('click', () => { poke(); attemptSave(); });
 
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
 }
 
-<<<<<<< HEAD
-newList();
-=======
 setPowerStage(0);
 loadIndex();
->>>>>>> 153eb81 (Deploy 2026-08-20 16:46:32,58)
 </script>
 </body>
 </html>
