@@ -1,0 +1,13 @@
+# Normalise line endings so Git stops warning on every add.
+* text=auto eol=lf
+
+# Windows batch files need CRLF to behave.
+*.bat text eol=crlf
+
+# Shell scripts must keep LF or bash will not run them.
+*.sh text eol=lf
+
+# Treat these as binary - never touch their bytes.
+*.png binary
+*.jpg binary
+*.ico binary

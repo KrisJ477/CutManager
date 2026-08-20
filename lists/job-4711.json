@@ -1,0 +1,15 @@
+{
+  "job": "4711",
+  "name": "4711 Botaniska \u2013 VS stam 3",
+  "created": "2026-08-20",
+  "cuts": [
+    { "id": "HA-1",  "mm": 234, "note": "" },
+    { "id": "HA-2",  "mm": 187, "note": "" },
+    { "id": "HA-3",  "mm": 296, "note": "" },
+    { "id": "HA-4",  "mm": 112, "note": "" },
+    { "id": "HA-5",  "mm": 245, "note": "" },
+    { "id": "HA-6",  "mm": 158, "note": "" },
+    { "id": "HA-7",  "mm": 203, "note": "" },
+    { "id": "HA-8",  "mm": 271, "note": "" }
+  ]
+}
