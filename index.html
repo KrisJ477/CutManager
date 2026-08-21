@@ -3,257 +3,256 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#14161a">
+<meta name="theme-color" content="#101215">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <title>K&amp;J Cut Guide</title>
 <style>
-  :root { color-scheme: dark; }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { overscroll-behavior: none; }
-  body {
-    margin: 0; min-height: 100dvh;
-    padding: max(.5rem, env(safe-area-inset-top)) .6rem max(.5rem, env(safe-area-inset-bottom));
-    background: #14161a; color: #e8eaed;
-    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-    display: flex; flex-direction: column; align-items: center; gap: .45rem;
-    user-select: none;
+  :root {
+    color-scheme: dark;
+    --bg:#101215; --panel:#191c21; --line:#262b32;
+    --ink:#e9ecf0; --dim:#8b929c; --faint:#5b626b;
+    --accent:#ffc400; --good:#17c964; --bad:#ff3b30; --cool:#6fb4ff;
   }
-  .colhead { font-size: .6rem; font-weight: 700; letter-spacing: .14em;
-             text-transform: uppercase; color: #55585e; text-align: center; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { overscroll-behavior:none; }
+  body {
+    margin:0; height:100dvh; overflow:hidden;
+    background:var(--bg); color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,sans-serif;
+    display:flex; flex-direction:column;
+    padding:max(.4rem,env(safe-area-inset-top)) .55rem max(.4rem,env(safe-area-inset-bottom));
+    gap:.4rem; user-select:none;
+  }
 
-  #topRow { width: 100%; display: flex; gap: .35rem; }
-  select { flex: 1; font: inherit; font-size: .8rem; font-weight: 700;
-           background: #1c1f24; color: #e8eaed;
-           border: 1px solid #2c3037; border-radius: .45rem; padding: .5rem; }
-  .modeBtn { flex: 0 0 auto; padding: .5rem .7rem; font-size: .72rem; font-weight: 700;
-             border: 0; border-radius: .45rem; background: #24272c; color: #b6bac0; }
-  .modeBtn.on { background: #2f2410; color: #ffc400; }
+  /* ---------------- header ---------------- */
+  header { display:flex; align-items:center; gap:.4rem; flex:0 0 auto; }
+  .iconbtn {
+    flex:0 0 auto; width:2.3rem; height:2.3rem; border:0; border-radius:.5rem;
+    background:var(--panel); color:var(--ink); font-size:1.1rem; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #dimSel {
+    flex:1; min-width:0; font:inherit; font-size:.85rem; font-weight:700;
+    background:var(--panel); color:var(--ink); border:1px solid var(--line);
+    border-radius:.5rem; padding:.55rem .5rem;
+  }
+  #modeChip {
+    flex:0 0 auto; border:0; border-radius:.5rem; padding:.55rem .6rem;
+    font-size:.7rem; font-weight:800; letter-spacing:.08em;
+    background:#2b2213; color:var(--accent);
+  }
+  #modeChip.rel { background:#132635; color:var(--cool); }
 
-  #stockCard { width: 100%; border-radius: .7rem; padding: .55rem .7rem;
-               background: #1b2430; border: 1px solid #29384a;
-               display: flex; flex-direction: column; gap: .2rem; }
-  #stockCard.waste { background: #2a2416; border-color: #4a3f22; }
-  #stockTop { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; }
-  #stockLabel { font-size: .95rem; font-weight: 800; }
-  #stockMeta { font-size: .66rem; color: #8b9098; font-variant-numeric: tabular-nums; }
-  #stockProg { font-size: .6rem; color: #6f747b; letter-spacing: .08em; text-transform: uppercase; }
-  #loadWarn { display: none; margin-top: .25rem; padding: .45rem;
-              background: #3a2a10; border: 1px solid #6b4d15; border-radius: .45rem;
-              font-size: .76rem; font-weight: 700; color: #ffc400; text-align: center; }
-  #loadWarn.show { display: block; }
+  /* ---------------- pipe bar ---------------- */
+  #pipeBar {
+    flex:0 0 auto; background:var(--panel); border:1px solid var(--line);
+    border-radius:.6rem; padding:.45rem .6rem;
+    display:flex; align-items:center; gap:.5rem;
+  }
+  #pipeBar.notLoaded { border-color:#6b4d15; background:#241c0c; }
+  #pipeBar.waste { border-color:#4a3f22; }
+  #pipeName { font-size:.85rem; font-weight:800; white-space:nowrap;
+              overflow:hidden; text-overflow:ellipsis; }
+  #pipeSub { font-size:.65rem; color:var(--dim); margin-left:auto; text-align:right;
+             white-space:nowrap; font-variant-numeric:tabular-nums; }
 
-  #queue { width: 100%; display: flex; flex-direction: column; gap: .16rem;
-           align-items: center; max-height: 5.2rem; overflow-y: auto; }
-  .qitem { width: 100%; display: flex; justify-content: space-between; gap: .4rem;
-           font-variant-numeric: tabular-nums; background: #1c1f24;
-           border: 1px solid #24272c; border-radius: .35rem;
-           padding: .22rem .5rem; color: #8b9098; font-size: .8rem; font-weight: 600; }
-  .qitem.next { color: #e8eaed; border-color: #ffc400; background: #23272d; }
-  .qitem.done { opacity: .4; }
-  .qitem.trim { color: #8a7a55; }
-  .qitem .id { font-size: .66rem; opacity: .75; min-width: 3.2rem; }
-  .qitem .abs { font-size: .72rem; color: #6f8cb0; }
+  /* ---------------- main frame ---------------- */
+  #main { flex:1 1 auto; display:flex; align-items:center; gap:.35rem; min-height:0; }
+  .arrow { flex:0 0 auto; width:1.9rem; height:1.9rem; color:var(--accent); visibility:hidden; }
+  .arrow.show { visibility:visible; animation:nudge .9s ease-in-out infinite; }
+  #arrowL.show { animation-name:nudgeL; }
+  @keyframes nudge  { 0%,100%{transform:translateX(0)} 50%{transform:translateX(.3rem)} }
+  @keyframes nudgeL { 0%,100%{transform:translateX(0)} 50%{transform:translateX(-.3rem)} }
 
-  #stage { display: flex; align-items: center; justify-content: center; gap: .3rem; width: 100%; }
-  .arrow { flex: 0 0 auto; width: 2rem; height: 2rem; color: #ffc400; visibility: hidden; }
-  .arrow.show { visibility: visible; animation: nudge .9s ease-in-out infinite; }
-  #arrowL.show { animation-name: nudgeL; }
-  @keyframes nudge  { 0%,100% { transform: translateX(0); } 50% { transform: translateX(.3rem); } }
-  @keyframes nudgeL { 0%,100% { transform: translateX(0); } 50% { transform: translateX(-.3rem); } }
+  #frame {
+    flex:1 1 auto; height:100%; border-radius:.9rem; padding:.7rem;
+    display:flex; flex-direction:column; justify-content:center; gap:.5rem;
+    background:#4b4f56; transition:background-color .12s linear;
+  }
+  #frame.onTarget { animation:flash .2s steps(1) infinite; }
+  @keyframes flash { 0%,49%{background-color:var(--good)} 50%,100%{background-color:#0a3d22} }
+  /* !important inside @keyframes is ignored by the spec - never add it. */
+  #frame.reject { animation:rejectFlash .2s steps(1) 3; }
+  @keyframes rejectFlash { 0%,49%{background-color:var(--bad)} 50%,100%{background-color:#2a0d0f} }
+  #frame.neutral { background:#2a2f36 !important; animation:none; }
 
-  #frame { flex: 1 1 auto; border-radius: .85rem; padding: .7rem;
-           display: flex; flex-direction: column; gap: .45rem;
-           background: #55585e; transition: background-color .12s linear; }
-  #frame.onTarget { animation: flash .2s steps(1) infinite; }
-  @keyframes flash { 0%,49% { background-color: #17c964; } 50%,100% { background-color: #0a3d22; } }
-  /* No !important inside keyframes - the spec ignores it, killing the rule. */
-  #frame.reject { animation: rejectFlash .2s steps(1) 3; }
-  @keyframes rejectFlash { 0%,49% { background-color: #ff3b30; } 50%,100% { background-color: #2a0d0f; } }
-  #frame.done { background: #24272c !important; animation: none; }
-  #frame.stub { background: #2c3a4d !important; animation: none; }
+  .rowLabel { font-size:.58rem; font-weight:800; letter-spacing:.12em;
+              text-transform:uppercase; color:#101215; opacity:.7;
+              margin-bottom:.15rem; padding-left:.2rem; }
+  .numBox { background:var(--bg); border-radius:.5rem; padding:.3rem .5rem;
+            display:flex; align-items:baseline; justify-content:center; gap:.3rem; }
+  .num { font-variant-numeric:tabular-nums; font-weight:700; line-height:1;
+         letter-spacing:-.02em; font-size:clamp(2.2rem,13vw,3.4rem); }
+  #targetNum { color:var(--ink); }
+  #currentNum { color:var(--accent); }
+  .unit { font-size:.85rem; font-weight:700; color:var(--faint); }
+  #hint { font-size:.64rem; font-weight:800; color:#101215; opacity:.85;
+          text-align:center; letter-spacing:.03em; }
+  #diffOut { flex:0 0 auto; text-align:center; font-size:.72rem; color:var(--dim);
+             font-variant-numeric:tabular-nums; min-height:1em; }
 
-  .label { font-size: .58rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-           color: #14161a; opacity: .75; margin-bottom: .15rem; padding-left: .15rem; }
-  .box { background: #14161a; border-radius: .45rem; padding: .22rem .5rem;
-         display: flex; align-items: baseline; justify-content: center; gap: .3rem; height: 3.8rem; }
-  .num { font-variant-numeric: tabular-nums; font-size: 2.7rem; font-weight: 700;
-         line-height: 1; letter-spacing: -.02em; }
-  #targetNum { color: #e8eaed; }
-  #currentNum { color: #ffc400; }
-  .unit { font-size: .9rem; font-weight: 600; color: #8b9098; }
-  #pieceHint { font-size: .62rem; color: #14161a; opacity: .85; text-align: center;
-               font-weight: 800; letter-spacing: .05em; }
+  /* ---------------- step strip ---------------- */
+  #strip { flex:0 0 auto; display:flex; flex-direction:column; gap:.15rem; }
+  .srow { display:flex; align-items:baseline; gap:.45rem; padding:.25rem .55rem;
+          border-radius:.4rem; font-variant-numeric:tabular-nums;
+          background:var(--panel); border:1px solid transparent; font-size:.75rem; }
+  .srow.cur { border-color:var(--accent); background:#20242a; }
+  .srow.ghost { opacity:.45; }
+  .srow .pid { color:var(--dim); min-width:3.2rem; font-size:.68rem; }
+  .srow .len { font-weight:700; }
+  .srow .at { margin-left:auto; color:var(--cool); font-size:.7rem; }
+  .srow.gone { text-decoration:line-through; opacity:.35; }
 
-  #navRow { width: 100%; display: flex; gap: .28rem; }
-  #navRow button { font-size: .68rem; padding: .45rem .2rem; background: #24272c; color: #b6bac0;
-                   border: 0; border-radius: .42rem; flex: 1; font-weight: 700; }
-  #navRow button.warn { background: #33241a; color: #e8a15c; }
-  #navRow button.zero { background: #1b3040; color: #7fc4ff; display: none; }
-  #navRow button.zero.show { display: block; }
-  #hapticBadge { cursor: pointer; }
-  #hapticBadge.on { background: #2f2410; color: #ffc400; }
-  #hapticBadge.off { background: #2a1c1c; color: #b06a6a; }
-  #zeroInfo { font-size: .66rem; color: #7fc4ff; text-align: center;
-              font-variant-numeric: tabular-nums; min-height: 1em; }
+  /* ---------------- actions ---------------- */
+  #nav { flex:0 0 auto; display:flex; gap:.35rem; align-items:stretch; }
+  #nav button { border:0; border-radius:.5rem; background:var(--panel); color:var(--dim);
+                font:inherit; font-size:.75rem; font-weight:700; padding:.5rem 0; }
+  #prevBtn,#nextBtn { flex:0 0 3.4rem; font-size:1rem; color:var(--ink); }
+  #stepCount { flex:1; display:flex; align-items:center; justify-content:center;
+               font-size:.68rem; color:var(--faint); letter-spacing:.06em;
+               font-variant-numeric:tabular-nums; }
+  #skipBtn { flex:0 0 auto; padding:.5rem .7rem; color:#e8a15c; background:#2a2015; }
 
-  #done { width: 100%; display: flex; flex-direction: column; gap: .16rem;
-          max-height: 5.5rem; overflow-y: auto; }
-  .ditem { display: flex; align-items: baseline; gap: .35rem;
-           background: #16241b; border: 1px solid #1f3d2a; border-radius: .35rem;
-           padding: .22rem .5rem; font-variant-numeric: tabular-nums; }
-  .ditem.skip { background: #241b16; border-color: #3d2a1f; }
-  .ditem .pid { font-size: .66rem; color: #7d9c88; min-width: 3rem; }
-  .ditem .v { color: #17c964; font-weight: 700; font-size: .82rem; }
-  .ditem.skip .v { color: #e8a15c; }
-  .ditem .loc { color: #e8eaed; font-weight: 700; font-size: .82rem;
-                background: #1f3d2a; border-radius: .28rem; padding: 0 .35rem; }
-  .ditem .t { color: #5c7566; font-size: .64rem; margin-left: auto; }
+  #actions { flex:0 0 auto; display:flex; gap:.4rem; }
+  #saveBtn { flex:1; border:0; border-radius:.6rem; background:var(--accent);
+             color:#101215; font:inherit; font-size:1rem; font-weight:800;
+             padding:.85rem 0; letter-spacing:.03em; }
+  #saveBtn:disabled { background:#33373d; color:var(--faint); }
+  #zeroBtn { flex:0 0 auto; border:0; border-radius:.6rem; background:#153044;
+             color:var(--cool); font:inherit; font-size:.85rem; font-weight:800;
+             padding:0 1rem; display:none; }
+  #zeroBtn.show { display:block; }
+  #status { flex:0 0 auto; text-align:center; font-size:.66rem; color:var(--faint);
+            min-height:1em; }
 
-  #panel { width: 100%; display: flex; flex-direction: column; gap: .32rem; margin-top: auto; }
-  .ctl { display: flex; align-items: center; gap: .35rem; font-size: .72rem; color: #8b9098; }
-  input[type=range] { flex: 1; accent-color: #ffc400; height: 1.8rem; }
-  output { min-width: 3.4rem; font-variant-numeric: tabular-nums; text-align: right; }
-  button.main { font: inherit; font-size: .8rem; font-weight: 700; padding: .58rem .6rem;
-                border: 0; border-radius: .45rem; background: #ffc400; color: #14161a; flex: 1; }
-  button.ghost { background: #24272c; color: #b6bac0; }
-  #status { font-size: .68rem; color: #6f747b; text-align: center; min-height: 1.1em; }
-  #diffOut { font-size: .72rem; color: #6f747b; text-align: center; font-variant-numeric: tabular-nums; }
-  .simRow.hidden { display: none; }
-  #badges { display: flex; gap: .28rem; justify-content: center; flex-wrap: wrap; }
-  .badge { font-size: .54rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-           padding: .12rem .38rem; border-radius: 1rem; background: #24272c; color: #6f747b; }
-  .badge.on { background: #2f2410; color: #ffc400; }
-  #verBadge { background: #1a2230; color: #6f8cb0; }
-  #kerfBadge.warnKerf { background: #3a1a1a; color: #ff8a80; }
+  /* ---------------- overlays ---------------- */
+  .veil { position:fixed; inset:0; background:#0a0c0ef2; z-index:30;
+          display:none; align-items:center; justify-content:center; padding:1rem; }
+  .veil.show { display:flex; }
+  .card { width:min(24rem,100%); background:var(--panel); border:1px solid var(--line);
+          border-radius:.9rem; padding:1rem; display:flex; flex-direction:column; gap:.7rem; }
+  .card h2 { margin:0; font-size:.72rem; letter-spacing:.12em; text-transform:uppercase;
+             color:var(--dim); font-weight:800; }
+  .card p { margin:0; font-size:.8rem; color:var(--dim); line-height:1.45; }
+  .btn { border:0; border-radius:.5rem; font:inherit; font-size:.85rem; font-weight:700;
+         padding:.75rem; background:#252a31; color:var(--ink); text-align:left; }
+  .btn.go { background:var(--good); color:#08210f; text-align:center; }
+  .btn.warn { background:#33241a; color:#e8a15c; }
+  .btn.danger { background:#3a1618; color:#ff8a80; }
+  .btn small { display:block; font-weight:500; font-size:.7rem; opacity:.75; margin-top:.15rem; }
 
-  .overlay { position: fixed; inset: 0; background: #0b0d10f2; z-index: 20;
-             display: none; flex-direction: column; align-items: center; justify-content: center;
-             gap: .7rem; padding: 1rem; }
-  .overlay.show { display: flex; }
-  #locTitle { font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: #8b9098; }
-  #locCut { font-size: .88rem; color: #ffc400; font-weight: 700; font-variant-numeric: tabular-nums; }
-  #locValue { font-size: 3.8rem; font-weight: 700; font-variant-numeric: tabular-nums;
-              color: #e8eaed; min-height: 4.2rem; line-height: 1.1; letter-spacing: .05em; }
-  #pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: .42rem; width: min(20rem, 100%); }
-  #pad button { font-size: 1.25rem; padding: .7rem 0; background: #23272d; color: #e8eaed;
-                border: 0; border-radius: .42rem; font-weight: 700; }
-  #pad button.ok { background: #17c964; color: #08210f; }
-  #pad button.alt { background: #2f2410; color: #ffc400; }
-  #locNote { width: min(20rem,100%); font: inherit; font-size: .85rem; padding: .5rem;
-             background: #1c1f24; color: #e8eaed; border: 1px solid #2c3037;
-             border-radius: .45rem; display: none; }
-  #locNote.show { display: block; }
+  /* load gate */
+  #gatePipe { font-size:1.6rem; font-weight:800; color:var(--accent); text-align:center; }
+  #gateInfo { font-size:.82rem; color:var(--dim); text-align:center;
+              font-variant-numeric:tabular-nums; line-height:1.5; }
 
-  #loadTitle { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: #8b9098; }
-  #loadPipe { font-size: 1.8rem; font-weight: 800; text-align: center; color: #ffc400; }
-  #loadDetail { font-size: .85rem; color: #b6bac0; text-align: center; font-variant-numeric: tabular-nums; }
-  #loadFirst { font-size: .8rem; color: #8b9098; text-align: center; }
-  #loadOverlay .row { display: flex; gap: .5rem; width: min(22rem,100%); }
-  #loadOverlay button { flex: 1; font-size: .88rem; font-weight: 700; padding: .75rem;
-                        border: 0; border-radius: .5rem; }
-  #loadOk { background: #17c964; color: #08210f; }
-  #loadSkipBtn { background: #33241a; color: #e8a15c; }
+  /* position keypad */
+  #posValue { font-size:3.4rem; font-weight:800; text-align:center;
+              font-variant-numeric:tabular-nums; letter-spacing:.05em; min-height:3.8rem; }
+  #posFor { text-align:center; font-size:.8rem; color:var(--accent); font-weight:700; }
+  #pad { display:grid; grid-template-columns:repeat(3,1fr); gap:.4rem; }
+  #pad button { border:0; border-radius:.5rem; background:#252a31; color:var(--ink);
+                font:inherit; font-size:1.25rem; font-weight:700; padding:.7rem 0; }
+  #pad button.ok { background:var(--good); color:#08210f; }
+  #pad button.alt { background:#2b2213; color:var(--accent); }
+  #posNote { font:inherit; font-size:.85rem; padding:.55rem; background:var(--bg);
+             color:var(--ink); border:1px solid var(--line); border-radius:.5rem;
+             display:none; resize:none; }
+  #posNote.show { display:block; }
 
-  #veil { position: fixed; inset: 0; background: #000; z-index: 15;
-          opacity: 0; pointer-events: none; transition: opacity .6s linear; }
-  #veil.pointer { pointer-events: auto; }
+  /* menu */
+  #menuCard { max-height:88dvh; overflow-y:auto; }
+  .mrow { display:flex; align-items:center; gap:.5rem; font-size:.78rem; color:var(--dim); }
+  .mrow .k { color:var(--faint); }
+  .mrow .v { margin-left:auto; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .sep { height:1px; background:var(--line); margin:.15rem 0; }
+  #simRange { width:100%; accent-color:var(--accent); height:1.9rem; }
+  #logList { max-height:11rem; overflow-y:auto; display:flex; flex-direction:column; gap:.2rem; }
+  .lrow { display:flex; gap:.4rem; align-items:baseline; font-size:.72rem;
+          background:var(--bg); border-radius:.35rem; padding:.25rem .45rem;
+          font-variant-numeric:tabular-nums; }
+  .lrow .pid { color:var(--dim); min-width:3rem; }
+  .lrow .loc { margin-left:auto; font-weight:800; color:var(--good); }
+  .lrow.sk .loc { color:#e8a15c; }
+
+  /* dim veil for power saving */
+  #dimVeil { position:fixed; inset:0; background:#000; z-index:20;
+             opacity:0; pointer-events:none; transition:opacity .6s linear; }
+  #dimVeil.grab { pointer-events:auto; }
 </style>
 </head>
 <body>
 
-  <div id="topRow">
-    <select id="dimSel"></select>
-    <button class="modeBtn on" id="modePlanned">Planned</button>
-    <button class="modeBtn" id="modeRelative">Relative</button>
-  </div>
+<header>
+  <button class="iconbtn" id="menuBtn" aria-label="Menu">&#9776;</button>
+  <select id="dimSel"></select>
+  <button id="modeChip">PLAN</button>
+</header>
 
-  <div id="stockCard">
-    <div id="stockTop">
-      <span id="stockLabel">--</span>
-      <span id="stockMeta"></span>
+<div id="pipeBar">
+  <span id="pipeName">--</span>
+  <span id="pipeSub"></span>
+</div>
+
+<div id="main">
+  <svg id="arrowL" class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 12H5M12 5l-7 7 7 7"/>
+  </svg>
+  <div id="frame">
+    <div>
+      <div class="rowLabel" id="targetLabel">Cut at</div>
+      <div class="numBox"><span class="num" id="targetNum">--</span><span class="unit">mm</span></div>
     </div>
-    <div id="stockProg"></div>
-    <div id="loadWarn">Load this pipe, then press Loaded</div>
-  </div>
-
-  <div class="colhead">Cutting order &mdash; top to bottom</div>
-  <div id="queue"></div>
-
-  <div id="stage">
-    <svg id="arrowL" class="arrow" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M20 12H5M12 5l-7 7 7 7"/>
-    </svg>
-    <div id="frame">
-      <div>
-        <div class="label" id="targetLabel">Cut at tape reading:</div>
-        <div class="box"><span class="num" id="targetNum">--</span><span class="unit">mm</span></div>
-      </div>
-      <div>
-        <div class="label">You are at:</div>
-        <div class="box"><span class="num" id="currentNum">0</span><span class="unit">mm</span></div>
-      </div>
-      <div id="pieceHint"></div>
+    <div>
+      <div class="rowLabel">You are at</div>
+      <div class="numBox"><span class="num" id="currentNum">0</span><span class="unit">mm</span></div>
     </div>
-    <svg id="arrowR" class="arrow" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M4 12h15M12 5l7 7-7 7"/>
-    </svg>
+    <div id="hint"></div>
   </div>
+  <svg id="arrowR" class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 12h15M12 5l7 7-7 7"/>
+  </svg>
+</div>
 
-  <div id="diffOut"></div>
-  <div id="zeroInfo"></div>
+<div id="diffOut"></div>
+<div id="strip"></div>
 
-  <div id="navRow">
-    <button id="prevStep">&#8592; Prev</button>
-    <button id="nextStep">Next &#8594;</button>
-    <button id="zeroBtn" class="zero">Zero here</button>
-    <button id="skipStep" class="warn">Skip piece</button>
-    <button id="skipStockBtn" class="warn">Skip pipe</button>
+<div id="nav">
+  <button id="prevBtn">&#8249;</button>
+  <div id="stepCount"></div>
+  <button id="skipBtn">Skip&hellip;</button>
+  <button id="nextBtn">&#8250;</button>
+</div>
+
+<div id="actions">
+  <button id="saveBtn">SAVE CUT</button>
+  <button id="zeroBtn">ZERO</button>
+</div>
+
+<div id="status">Loading&hellip;</div>
+
+<!-- ============ load gate ============ -->
+<div class="veil" id="gateVeil">
+  <div class="card">
+    <h2>Load this pipe</h2>
+    <div id="gatePipe">--</div>
+    <div id="gateInfo"></div>
+    <button class="btn go" id="gateOk">Loaded &mdash; start cutting</button>
+    <button class="btn warn" id="gateSkip">Skip this whole pipe
+      <small>Records every remaining piece on it as not cut</small></button>
   </div>
+</div>
 
-  <div id="badges">
-    <span class="badge" id="verBadge">v9</span>
-    <span class="badge" id="kerfBadge">kerf 0</span>
-    <span class="badge" id="hapticBadge">haptics</span>
-    <span class="badge" id="wakeBadge">screen off</span>
-    <span class="badge" id="linkBadge">no tape</span>
-    <span class="badge" id="powerBadge">active</span>
-  </div>
-
-  <div class="colhead">Cut log</div>
-  <div id="done"></div>
-
-  <div id="panel">
-    <div class="ctl simRow" id="simRow">
-      <input type="range" id="sim" min="0" max="6100" step="1" value="0">
-      <output id="simOut">0 mm</output>
-    </div>
-    <div class="ctl">
-      <button class="main" id="save">Save</button>
-      <button class="main ghost" id="export">CSV</button>
-      <button class="main ghost" id="connect">Connect</button>
-    </div>
-    <div id="status">Pick a dimension to begin.</div>
-  </div>
-
-  <div class="overlay" id="loadOverlay">
-    <div id="loadTitle">Load this pipe</div>
-    <div id="loadPipe">--</div>
-    <div id="loadDetail"></div>
-    <div id="loadFirst"></div>
-    <div class="row">
-      <button id="loadOk">Loaded</button>
-      <button id="loadSkipBtn">Skip this pipe</button>
-    </div>
-  </div>
-
-  <div class="overlay" id="locOverlay">
-    <div id="locTitle">Stored at position</div>
-    <div id="locCut"></div>
-    <div id="locValue">--</div>
+<!-- ============ storage position ============ -->
+<div class="veil" id="posVeil">
+  <div class="card">
+    <h2>Where did you put it?</h2>
+    <div id="posFor"></div>
+    <div id="posValue">--</div>
     <div id="pad">
       <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
       <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
@@ -261,23 +260,69 @@
       <button class="alt" data-k="note">&hellip;</button>
       <button data-k="0">0</button>
       <button data-k="del">&#9003;</button>
-      <button class="ok" data-k="ok" style="grid-column: span 3">OK</button>
     </div>
-    <textarea id="locNote" rows="2" placeholder="Comment instead of a position number"></textarea>
+    <textarea id="posNote" rows="2" placeholder="Comment instead of a position number"></textarea>
+    <button class="btn go" data-k="ok" id="posOk">Confirm</button>
   </div>
+</div>
 
-  <div id="veil"></div>
+<!-- ============ skip sheet ============ -->
+<div class="veil" id="skipVeil">
+  <div class="card">
+    <h2>Skip</h2>
+    <p>Skipping writes a permanent record that the piece was not cut.
+       To only look ahead without recording anything, use the arrows instead.</p>
+    <button class="btn warn" id="skipPiece">Skip this piece
+      <small id="skipPieceSub"></small></button>
+    <button class="btn warn" id="skipPipe">Skip the rest of this pipe
+      <small id="skipPipeSub"></small></button>
+    <button class="btn" id="skipCancel">Cancel</button>
+  </div>
+</div>
+
+<!-- ============ menu ============ -->
+<div class="veil" id="menuVeil">
+  <div class="card" id="menuCard">
+    <h2>Tape</h2>
+    <button class="btn" id="connectBtn">Connect tape</button>
+    <div class="mrow"><span class="k">Link</span><span class="v" id="mLink">not connected</span></div>
+    <div class="mrow"><span class="k">Screen</span><span class="v" id="mWake">-</span></div>
+    <div id="simWrap">
+      <div class="mrow"><span class="k">Simulate blade</span><span class="v" id="mSim">0 mm</span></div>
+      <input type="range" id="simRange" min="0" max="6100" step="1" value="0">
+    </div>
+
+    <div class="sep"></div>
+    <h2>Settings</h2>
+    <button class="btn" id="hapticBtn">Haptics: on <small>Tap to toggle and test</small></button>
+    <div class="mrow"><span class="k">Saw kerf</span><span class="v" id="mKerf">0 mm</span></div>
+    <div class="mrow"><span class="k">Version</span><span class="v" id="mVer"></span></div>
+
+    <div class="sep"></div>
+    <h2>Cut log</h2>
+    <div class="mrow"><span class="k">Recorded</span><span class="v" id="mCount">0</span></div>
+    <div id="logList"></div>
+    <button class="btn" id="exportBtn">Export CSV</button>
+    <button class="btn warn" id="undoBtn">Undo last entry
+      <small>Removes the most recent record and reopens that step</small></button>
+    <button class="btn danger" id="clearBtn">Clear all stored data
+      <small>Deletes every cut record on this device</small></button>
+
+    <div class="sep"></div>
+    <button class="btn" id="menuClose">Close</button>
+  </div>
+</div>
+
+<div id="dimVeil"></div>
 
 <script src="./cutdata.js"></script>
 <script>
 /* ================= tuning ================= */
-// Saw kerf in mm. The nesting list contains NO kerf allowance, so leaving
-// this at 0 reproduces the list exactly. Raise it once measured - every
-// cut after the first then shifts down by one kerf so piece lengths stay
-// correct. Watch the kerf badge: it turns red if a bar can no longer fit.
+// The nesting list carries no kerf allowance, and the toothless rotary
+// cutter removes almost nothing, so 0 reproduces the list exactly.
 let KERF = 0;
 
-const APP_VERSION = 'v9';
+const APP_VERSION = 'v10';
 const POSITION_SERVICE = '7ad09b02-1f68-4c68-922f-a063dfdb7912';
 const LIVE_MEASUREMENT = '0d689f63-fdf9-4f0f-8522-736d4723ad2f';
 const SYNC_SERVICE     = '43744f76-de4d-4b05-a14a-0c133a785d8e';
@@ -291,716 +336,581 @@ const DIM_AFTER = 45, DEEP_AFTER = 180, RELEASE_AFTER = 420;
 const IDLE_HZ = 2, ACTIVE_HZ = 8;
 
 const $ = id => document.getElementById(id);
-const frameEl=$('frame'), arrowL=$('arrowL'), arrowR=$('arrowR');
-const targetNum=$('targetNum'), currentNum=$('currentNum'), targetLabel=$('targetLabel');
-const queueEl=$('queue'), doneEl=$('done'), pieceHint=$('pieceHint');
-const sim=$('sim'), simOut=$('simOut'), simRow=$('simRow');
-const btn=$('connect'), saveBtn=$('save'), exportBtn=$('export');
-const statusEl=$('status'), diffOut=$('diffOut');
-const wakeBadge=$('wakeBadge'), linkBadge=$('linkBadge'), powerBadge=$('powerBadge');
-const verBadge=$('verBadge'), kerfBadge=$('kerfBadge'), hapticBadge=$('hapticBadge');
-const zeroBtn=$('zeroBtn'), zeroInfo=$('zeroInfo');
-const dimSel=$('dimSel'), stockCard=$('stockCard'), stockLabel=$('stockLabel');
-const stockMeta=$('stockMeta'), stockProg=$('stockProg'), loadWarn=$('loadWarn');
-const loadOverlay=$('loadOverlay'), loadPipe=$('loadPipe'), loadDetail=$('loadDetail'), loadFirst=$('loadFirst');
-const loadOk=$('loadOk'), loadSkipBtn=$('loadSkipBtn');
-const locOverlay=$('locOverlay'), locValue=$('locValue'), locCut=$('locCut'), locNote=$('locNote');
-const veil=$('veil');
-const modePlanned=$('modePlanned'), modeRelative=$('modeRelative');
-const prevStep=$('prevStep'), nextStep=$('nextStep'), skipStep=$('skipStep'), skipStockBtn=$('skipStockBtn');
 
-/* ================= state =================
-   DATA is never mutated. Progress lives only in `session`, which is
-   append-only and keyed by dimension|stock|piece, so navigating,
-   skipping or switching dimension can never lose a stored position. */
+/* ================= state ================= */
 let session = { log: [], doneKeys: {} };
-let dim = null, stockIdx = 0, stepIdx = 0;
-let mode = 'planned', stockLoaded = false;
-let seqCache = null;
-
+let dim=null, stockIdx=0, stepIdx=0, seqCache=null;
+let mode='planned', stockLoaded=false, zeroRef=0;
 let device=null, liveChar=null, commChar=null;
 let pollTimer=null, running=false, rejecting=false;
 let currentMm=0, lastUm=null;
 let lastActivity=Date.now(), powerStage=0;
-let pendingStep=null, locBuf='';
-
-// Relative mode: the tape is zeroed wherever the fitter likes and the
-// app reports distance travelled from that point, so a piece can be cut
-// off the free end after the planned layout has been ruined.
-let zeroRef = 0;
-let haptics = true;
-
-/* ================= haptics =================
-   navigator.vibrate exists on desktop but does nothing - there is no
-   hardware. Only Android will actually buzz. Patterns are deliberately
-   punchy: gloves and a noisy workshop swallow anything subtle. */
-const BUZZ = {
-  ok:      [90],
-  confirm: [60, 50, 180],
-  reject:  [180, 90, 180, 90, 180],
-  need:    [70, 90, 70],
-  gate:    [250],
-  tick:    [30]
-};
-function buzz(pattern) {
-  if (!haptics) return;
-  try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
-}
-
-/* On-target pulse: the haptic twin of the flashing green frame. Runs
-   until the blade leaves the window, the step is saved, or an overlay
-   opens. Deliberately slower than the 5 Hz visual flash - a continuous
-   motor buzz is unpleasant and drains the battery. */
-let targetBuzzTimer = null;
-function startTargetBuzz() {
-  if (targetBuzzTimer || !haptics) return;
-  buzz([70]);
-  targetBuzzTimer = setInterval(() => buzz([70]), 380);
-}
-function stopTargetBuzz() {
-  if (!targetBuzzTimer) return;
-  clearInterval(targetBuzzTimer);
-  targetBuzzTimer = null;
-  try { if (navigator.vibrate) navigator.vibrate(0); } catch (e) {}
-}
-function refreshHapticBadge() {
-  const supported = 'vibrate' in navigator;
-  hapticBadge.textContent = !supported ? 'no haptics'
-                          : (haptics ? 'haptics on' : 'haptics off');
-  hapticBadge.classList.toggle('on', supported && haptics);
-  hapticBadge.classList.toggle('off', supported && !haptics);
-}
+let pendingStep=null, posBuf='';
+let haptics=true;
 
 const STORE_KEY = 'kj-cutguide-session-v5';
-function saveSession() { try { localStorage.setItem(STORE_KEY, JSON.stringify(session)); } catch(e){} }
-function loadSession() {
-  try { const r = localStorage.getItem(STORE_KEY); if (r) session = JSON.parse(r); } catch(e){}
+function saveSession(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(session)); }catch(e){} }
+function loadStored(){ try{ const r=localStorage.getItem(STORE_KEY); if(r) session=JSON.parse(r); }catch(e){} }
+
+/* ================= haptics ================= */
+const BUZZ = { ok:[90], confirm:[60,50,180], reject:[180,90,180,90,180],
+               need:[70,90,70], gate:[250], tick:[30] };
+function buzz(p){ if(!haptics) return; try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+
+let targetBuzzTimer=null;
+function startTargetBuzz(){
+  if (targetBuzzTimer || !haptics) return;
+  buzz([70]);
+  targetBuzzTimer = setInterval(()=>buzz([70]), 380);
+}
+function stopTargetBuzz(){
+  if (!targetBuzzTimer) return;
+  clearInterval(targetBuzzTimer); targetBuzzTimer=null;
+  try{ if(navigator.vibrate) navigator.vibrate(0); }catch(e){}
 }
 
-/* ================= cutting sequence =================
-   Pieces lie left to right in list order, packed from the fixed left
-   end, with the offcut waste at the far right. The tape is zeroed at
-   that same fixed left end, and cutting runs right to left. So:
-
-     step 0        trim off the waste tail at (sum of all pieces)
-     steps 1..n-1  cut at each piece boundary, descending
-     final step    the leftmost piece is already free - no cut, but it
-                   still needs a storage position
-
-   Each completed cut consumes one kerf, so every later position is
-   shifted down by the number of cuts already made.                    */
+/* ================= sequence =================
+   Pieces lie left to right in list order, packed from the clamped left
+   end, waste at the far right. The tape is zeroed at that same end and
+   cutting runs right to left, so:
+     trim   - remove the waste tail, at the sum of all pieces
+     cut(s) - each piece boundary, descending
+     stub   - the leftmost piece is already free; no cut, but it still
+              needs a storage position                                  */
 function buildSequence(s) {
-  const total = s.pieces.reduce((a, p) => a + p.mm, 0);
+  const total = s.pieces.reduce((a,p)=>a+p.mm, 0);
   const waste = s.length - total;
   const steps = [];
   let cutNo = 0;
 
   if (waste > 0) {
-    steps.push({ type: 'trim', pos: total, waste: waste,
-                 key: s.id + '|TRIM', label: 'Trim tail' });
+    steps.push({ type:'trim', pos:total, waste:waste, key:s.id+'|TRIM' });
     cutNo++;
   }
+  const bounds=[]; let acc=0;
+  s.pieces.forEach(p=>{ bounds.push(acc); acc+=p.mm; });
 
-  // left boundary of piece k = sum of pieces before it
-  const bounds = [];
-  let acc = 0;
-  s.pieces.forEach(p => { bounds.push(acc); acc += p.mm; });
-
-  for (let k = s.pieces.length - 1; k >= 1; k--) {
-    steps.push({ type: 'cut',
-                 pos: bounds[k] - cutNo * KERF,
-                 piece: s.pieces[k],
-                 key: s.id + '|' + s.pieces[k].id });
+  for (let k=s.pieces.length-1; k>=1; k--) {
+    steps.push({ type:'cut', pos:bounds[k]-cutNo*KERF, piece:s.pieces[k],
+                 key:s.id+'|'+s.pieces[k].id });
     cutNo++;
   }
-
-  steps.push({ type: 'stub', pos: null, piece: s.pieces[0],
-               key: s.id + '|' + s.pieces[0].id });
-
-  return { steps: steps, total: total, waste: waste, cuts: cutNo };
+  steps.push({ type:'stub', pos:null, piece:s.pieces[0], key:s.id+'|'+s.pieces[0].id });
+  return { steps:steps, total:total, waste:waste, cuts:cutNo };
 }
 
-function stocks() { return dim ? DATA[dim] : []; }
-function stock()  { return stocks()[stockIdx] || null; }
-function seq()    { if (!seqCache) seqCache = buildSequence(stock()); return seqCache; }
-function steps()  { return stock() ? seq().steps : []; }
-function step()   { return steps()[stepIdx] || null; }
-function fullKey(st) { return dim + '|' + st.key; }
-function isDone(st)  { return !!session.doneKeys[fullKey(st)]; }
+const stocks = () => dim ? DATA[dim] : [];
+const stock  = () => stocks()[stockIdx] || null;
+function seq(){ if(!seqCache) seqCache = buildSequence(stock()); return seqCache; }
+const steps  = () => stock() ? seq().steps : [];
+const step   = () => steps()[stepIdx] || null;
+const fullKey= st => dim+'|'+st.key;
+const isDone = st => !!session.doneKeys[fullKey(st)];
 
-function targetFor(st) {
-  if (!st) return null;
-  if (st.type === 'stub') return null;
-  // Relative: measure the piece itself off the free end. The waste tail
-  // is equally measurable that way, so the trim step works too.
-  if (mode === 'relative') return st.type === 'trim' ? st.waste : st.piece.mm;
+function targetFor(st){
+  if (!st || st.type==='stub') return null;
+  if (mode==='relative') return st.type==='trim' ? st.waste : st.piece.mm;
   return Math.round(st.pos);
 }
-
-// What the fitter is actually reading: absolute tape position in planned
-// mode, distance travelled from the zero point in relative mode. Direction
-// does not matter - only how far the blade has moved.
-function dispMm() {
-  return mode === 'relative' ? Math.abs(currentMm - zeroRef) : currentMm;
+// Absolute tape reading when planned; distance from the zero point when
+// relative. Direction is irrelevant, only how far the blade has moved.
+function dispMm(){ return mode==='relative' ? Math.abs(currentMm-zeroRef) : currentMm; }
+function stepName(st){
+  if (!st) return '';
+  if (st.type==='trim') return 'Trim tail';
+  return st.piece.id;
 }
 
-/* ================= navigation ================= */
-function buildDimSelect() {
-  dimSel.innerHTML = '';
-  Object.keys(DATA).forEach(name => {
-    const o = document.createElement('option');
-    o.value = name; o.textContent = name;
-    dimSel.appendChild(o);
-  });
-}
-
-function setDim(name) {
-  dim = name; stockIdx = 0; stepIdx = 0; seqCache = null; stockLoaded = false;
-  advanceToNextUndone(false);
-  renderAll();
-  openLoadGate();
-}
-
-/* Find the next step that still needs doing.
-   Scans forward from the cursor and then WRAPS to the start of the
-   dimension. Without the wrap, jumping around with Prev/Next in relative
-   mode could leave the cursor past undone steps, and it would then stick
-   on the last step forever - re-prompting the same stub. */
-function advanceToNextUndone(startAfterCurrent) {
+/* ================= cursor ================= */
+function advanceToNextUndone(afterCurrent){
   const list = stocks();
   if (!list.length) return false;
-
-  const positions = [];
-  for (let s = 0; s < list.length; s++) {
-    const sq = buildSequence(list[s]);
-    for (let i = 0; i < sq.steps.length; i++) {
-      positions.push({ s: s, i: i, key: sq.steps[i].key });
-    }
+  const pos=[];
+  for (let s=0;s<list.length;s++){
+    const sq=buildSequence(list[s]);
+    for (let i=0;i<sq.steps.length;i++) pos.push({s:s,i:i,key:sq.steps[i].key});
   }
-  if (!positions.length) return false;
-
-  let cur = positions.findIndex(p => p.s === stockIdx && p.i === stepIdx);
-  if (cur < 0) cur = 0;
-  const begin = startAfterCurrent ? cur + 1 : cur;
-
-  for (let n = 0; n < positions.length; n++) {
-    const p = positions[(begin + n) % positions.length];
-    if (!session.doneKeys[dim + '|' + p.key]) {
-      if (p.s !== stockIdx) { stockIdx = p.s; seqCache = null; stockLoaded = false; }
-      stepIdx = p.i;
-      return true;
+  let cur = pos.findIndex(p=>p.s===stockIdx && p.i===stepIdx);
+  if (cur<0) cur=0;
+  const begin = afterCurrent ? cur+1 : cur;
+  for (let n=0;n<pos.length;n++){
+    const p = pos[(begin+n)%pos.length];
+    if (!session.doneKeys[dim+'|'+p.key]) {
+      if (p.s!==stockIdx){ stockIdx=p.s; seqCache=null; stockLoaded=false; }
+      stepIdx=p.i; return true;
     }
   }
   return false;
 }
 
-function gotoStock(i) {
-  if (i < 0 || i >= stocks().length) return;
-  stockIdx = i; stepIdx = 0; seqCache = null; stockLoaded = false;
-  // Land on the first step that still needs doing on this pipe.
-  const sq = seq();
-  for (let n = 0; n < sq.steps.length; n++) {
-    if (!session.doneKeys[dim + '|' + sq.steps[n].key]) { stepIdx = n; break; }
-  }
-  renderAll();
-  openLoadGate();
+function setDim(name){
+  dim=name; stockIdx=0; stepIdx=0; seqCache=null; stockLoaded=false;
+  advanceToNextUndone(false);
+  renderAll(); openGate();
+}
+function gotoStock(i){
+  if (i<0 || i>=stocks().length) return;
+  stockIdx=i; stepIdx=0; seqCache=null; stockLoaded=false;
+  const sq=seq();
+  for (let n=0;n<sq.steps.length;n++)
+    if (!session.doneKeys[dim+'|'+sq.steps[n].key]) { stepIdx=n; break; }
+  renderAll(); openGate();
 }
 
 /* ================= load gate ================= */
-function openLoadGate() {
-  const s = stock();
-  if (!s) { loadOverlay.classList.remove('show'); return; }
-  const sq = seq();
-  loadPipe.textContent = s.label;
-  loadDetail.textContent = dim + '  \u00b7  ' + s.length + ' mm  \u00b7  '
-                         + s.pieces.length + ' pieces  \u00b7  ' + sq.cuts + ' cuts';
-  loadFirst.textContent = 'First cut at ' + Math.round(sq.steps[0].pos) + ' mm'
-                        + (sq.waste > 0 ? '  (trims ' + sq.waste + ' mm tail)' : '');
-  loadOverlay.classList.add('show');
+function openGate(){
+  const s=stock(); if(!s){ gateVeil.classList.remove('show'); return; }
+  const sq=seq();
+  gatePipe.textContent = s.label;
+  gateInfo.innerHTML = dim + '<br>' + s.length + ' mm &middot; '
+    + (s.kind==='waste' ? 'offcut' : 'new stock') + ' &middot; '
+    + s.pieces.length + ' pieces<br>First cut at <b>' + Math.round(sq.steps[0].pos)
+    + ' mm</b>' + (sq.waste>0 ? ' (trims ' + sq.waste + ' mm tail)' : '');
+  gateVeil.classList.add('show');
   buzz(BUZZ.gate);
 }
-loadOk.addEventListener('click', () => {
-  stockLoaded = true; loadOverlay.classList.remove('show'); renderAll();
-});
-loadSkipBtn.addEventListener('click', () => {
-  logSkipStock();
-  loadOverlay.classList.remove('show');
-  if (stockIdx < stocks().length - 1) gotoStock(stockIdx + 1);
-  else { statusEl.textContent = 'No more pipes on this dimension.'; renderAll(); }
-});
+gateOk.onclick = () => { stockLoaded=true; gateVeil.classList.remove('show'); renderAll(); };
+gateSkip.onclick = () => {
+  skipWholePipe();
+  gateVeil.classList.remove('show');
+};
 
-/* ================= rendering ================= */
-function renderStockCard() {
-  const s = stock();
-  if (!s) {
-    stockLabel.textContent = 'No pipe'; stockMeta.textContent = ''; stockProg.textContent = '';
-    loadWarn.classList.remove('show'); return;
-  }
-  const sq = seq();
-  stockLabel.textContent = s.label;
-  stockMeta.textContent = s.length + ' mm';
-  stockCard.classList.toggle('waste', s.kind === 'waste');
-  const left = sq.steps.filter(st => !isDone(st)).length;
-  stockProg.textContent = 'Pipe ' + (stockIdx + 1) + ' of ' + stocks().length
-                        + '  \u00b7  ' + (s.kind === 'waste' ? 'offcut' : 'new stock')
-                        + '  \u00b7  ' + left + ' steps left';
-  loadWarn.classList.toggle('show', mode === 'planned' && !stockLoaded);
-
-  // Kerf sanity: does the bar still fit once every cut eats a kerf?
-  const needed = sq.total + sq.cuts * KERF;
-  kerfBadge.textContent = 'kerf ' + KERF;
-  kerfBadge.classList.toggle('warnKerf', needed > s.length);
+/* ================= render ================= */
+function renderPipeBar(){
+  const s=stock();
+  if(!s){ pipeName.textContent='No pipe'; pipeSub.textContent=''; return; }
+  pipeName.textContent = s.label;
+  const left = steps().filter(st=>!isDone(st)).length;
+  pipeSub.textContent = 'pipe ' + (stockIdx+1) + '/' + stocks().length
+                      + ' \u00b7 ' + left + ' left';
+  pipeBar.classList.toggle('waste', s.kind==='waste');
+  pipeBar.classList.toggle('notLoaded', mode==='planned' && !stockLoaded);
 }
 
-function renderQueue() {
-  queueEl.innerHTML = '';
-  steps().forEach((st, i) => {
-    const d = document.createElement('div');
-    d.className = 'qitem' + (i === stepIdx ? ' next' : '')
-                + (isDone(st) ? ' done' : '') + (st.type === 'trim' ? ' trim' : '');
-    if (st.type === 'trim') {
-      d.innerHTML = '<span class="id">trim</span><span>' + st.waste + ' mm waste</span>'
-                  + '<span class="abs">@ ' + Math.round(st.pos) + '</span>';
-    } else if (st.type === 'stub') {
-      d.innerHTML = '<span class="id">' + st.piece.id + '</span><span>' + st.piece.mm + ' mm</span>'
-                  + '<span class="abs">stub</span>';
-    } else {
-      d.innerHTML = '<span class="id">' + st.piece.id + '</span><span>' + st.piece.mm + ' mm</span>'
-                  + '<span class="abs">@ ' + Math.round(st.pos) + '</span>';
-    }
-    queueEl.appendChild(d);
-  });
-  const active = queueEl.children[stepIdx];
-  if (active) active.scrollIntoView({ block: 'nearest' });
+function stripRow(st, cls){
+  const d=document.createElement('div');
+  d.className='srow '+cls+(st && isDone(st)?' gone':'');
+  if (!st){ d.innerHTML='<span class="pid">&mdash;</span>'; return d; }
+  const len = st.type==='trim' ? st.waste+' mm waste' : st.piece.mm+' mm';
+  const at  = st.type==='stub' ? 'no cut' : '@ '+Math.round(st.pos);
+  d.innerHTML = '<span class="pid">'+stepName(st)+'</span>'
+              + '<span class="len">'+len+'</span>'
+              + '<span class="at">'+at+'</span>';
+  return d;
+}
+function renderStrip(){
+  strip.innerHTML='';
+  const all=steps();
+  strip.appendChild(stripRow(all[stepIdx-1],'ghost'));
+  strip.appendChild(stripRow(all[stepIdx],'cur'));
+  strip.appendChild(stripRow(all[stepIdx+1],'ghost'));
+  stepCount.textContent = all.length ? 'STEP '+(stepIdx+1)+' / '+all.length : '';
 }
 
-function renderLog() {
-  doneEl.innerHTML = '';
-  session.log.slice().reverse().slice(0, 40).forEach(r => {
-    const d = document.createElement('div');
-    d.className = 'ditem' + (r.status !== 'cut' ? ' skip' : '');
-    const loc = r.status !== 'cut' ? r.status : (r.comment ? '\u2026' : r.location);
-    d.innerHTML = '<span class="pid">' + (r.pieceId || '') + '</span>'
-                + '<span class="v">' + (r.mm != null ? r.mm + ' mm' : '') + '</span>'
-                + '<span class="loc">' + loc + '</span>'
-                + '<span class="t">' + r.time + '</span>';
-    d.title = (r.dim || '') + ' ' + (r.stockLabel || '') + ' ' + (r.comment || '');
-    doneEl.appendChild(d);
-  });
-}
+function render(){
+  const st=step();
+  const shown=Math.round(dispMm());
+  currentNum.textContent = shown;
+  targetLabel.textContent = mode==='planned' ? 'Cut at' : 'Length from zero';
+  zeroBtn.classList.toggle('show', mode==='relative');
 
-function render() {
-  const st = step();
-  const shownCurrent = Math.round(dispMm());
-  currentNum.textContent = shownCurrent;
-  simOut.textContent = Math.round(Number(sim.value)) + ' mm';
-  targetLabel.textContent = mode === 'planned' ? 'Cut at tape reading:' : 'Length from zero:';
-
-  zeroBtn.classList.toggle('show', mode === 'relative');
-  zeroInfo.textContent = mode === 'relative'
-    ? 'Zeroed at ' + Math.round(zeroRef) + ' mm  \u00b7  tape reads ' + Math.round(currentMm) + ' mm'
-    : '';
-
-  frameEl.classList.remove('stub');
-
-  if (!st) {
-    targetNum.textContent = '--';
-    frameEl.classList.remove('onTarget'); frameEl.classList.add('done');
+  if(!st){
+    targetNum.textContent='--';
+    frameEl.classList.remove('onTarget'); frameEl.classList.add('neutral');
     arrowL.classList.remove('show'); arrowR.classList.remove('show');
-    diffOut.textContent = ''; pieceHint.textContent = 'Dimension complete';
-    stopTargetBuzz();
-    return;
+    diffOut.textContent=''; hint.textContent='Dimension complete';
+    saveBtn.disabled=true; stopTargetBuzz(); return;
   }
+  saveBtn.disabled=false;
+  frameEl.classList.remove('neutral');
 
-  // The leftmost piece needs no cut - it only needs a storage position.
-  if (st.type === 'stub') {
-    targetNum.textContent = '--';
-    frameEl.classList.remove('onTarget', 'done');
-    frameEl.classList.add('stub');
-    frameEl.style.backgroundColor = '';
+  if (st.type==='stub'){
+    targetNum.textContent='--';
+    frameEl.classList.remove('onTarget'); frameEl.classList.add('neutral');
+    frameEl.style.backgroundColor='';
     arrowL.classList.remove('show'); arrowR.classList.remove('show');
-    diffOut.textContent = '';
-    pieceHint.textContent = st.piece.id + '  \u00b7  ' + st.piece.mm
-                          + ' mm  \u00b7  NO CUT - already free, just store it';
-    stopTargetBuzz();
-    return;
+    diffOut.textContent='';
+    hint.textContent = st.piece.id+' \u00b7 '+st.piece.mm+' mm \u00b7 NO CUT, ALREADY FREE';
+    saveBtn.textContent='STORE PIECE';
+    stopTargetBuzz(); return;
   }
+  saveBtn.textContent = st.type==='trim' ? 'CONFIRM TRIM' : 'SAVE CUT';
 
-  frameEl.classList.remove('done');
-  const target = targetFor(st);
-  targetNum.textContent = target;
-  pieceHint.textContent = st.type === 'trim'
-    ? 'TRIM TAIL  \u00b7  ' + st.waste + ' mm waste'
-    : (mode === 'planned'
-        ? st.piece.id + '  \u2192  piece ' + st.piece.mm + ' mm'
-        : st.piece.id + '  \u2192  ' + st.piece.mm + ' mm from the free end');
+  const target=targetFor(st);
+  targetNum.textContent=target;
+  hint.textContent = st.type==='trim'
+    ? 'TRIM TAIL \u00b7 '+st.waste+' mm waste'
+    : (mode==='planned'
+        ? st.piece.id+' \u2192 piece '+st.piece.mm+' mm'
+        : st.piece.id+' \u2192 '+st.piece.mm+' mm off the free end');
 
-  const diff = shownCurrent - target, err = Math.abs(diff);
-  if (err <= ON_TARGET_TOL) {
+  const diff=shown-target, err=Math.abs(diff);
+  if (err<=ON_TARGET_TOL){
     frameEl.classList.add('onTarget');
-    if (!rejecting) frameEl.style.backgroundColor = '';
-    diffOut.textContent = 'On target';
+    if(!rejecting) frameEl.style.backgroundColor='';
+    diffOut.textContent = mode==='relative'
+      ? 'On target \u00b7 zero at '+Math.round(zeroRef)+' mm'
+      : 'On target';
     arrowL.classList.remove('show'); arrowR.classList.remove('show');
-    if (!pendingStep && !locOverlay.classList.contains('show')) startTargetBuzz();
+    if (!pendingStep && !posVeil.classList.contains('show')) startTargetBuzz();
   } else {
     frameEl.classList.remove('onTarget');
     stopTargetBuzz();
-    if (!rejecting) frameEl.style.backgroundColor = errorColor(err);
-    diffOut.textContent = (diff > 0 ? '+' : '') + diff + ' mm';
-    arrowL.classList.toggle('show', diff > 0);
-    arrowR.classList.toggle('show', diff < 0);
+    if(!rejecting) frameEl.style.backgroundColor=errorColor(err);
+    diffOut.textContent = (diff>0?'+':'')+diff+' mm'
+      + (mode==='relative' ? ' \u00b7 zero at '+Math.round(zeroRef)+' mm' : '');
+    arrowL.classList.toggle('show', diff>0);
+    arrowR.classList.toggle('show', diff<0);
   }
 }
+function renderAll(){ renderPipeBar(); renderStrip(); render(); renderMenu(); }
 
-function renderAll() { renderStockCard(); renderQueue(); renderLog(); render(); }
-
-function errorColor(err) {
-  const c = Math.min(Math.max(err, GREEN_AT), RED_AT);
-  const t = (RED_AT - c) / (RED_AT - GREEN_AT);
-  return 'hsl(' + (120 * Math.pow(t, 1.6)).toFixed(1) + ', 72%, 44%)';
+function errorColor(err){
+  const c=Math.min(Math.max(err,GREEN_AT),RED_AT);
+  const t=(RED_AT-c)/(RED_AT-GREEN_AT);
+  return 'hsl('+(120*Math.pow(t,1.6)).toFixed(1)+', 72%, 44%)';
 }
 
 /* ================= save ================= */
-function attemptSave() {
-  const st = step();
-  if (!st || pendingStep) return;
+function attemptSave(){
+  const st=step();
+  if(!st || pendingStep) return;
+  if (isDone(st)){ status.textContent='Already recorded \u2014 moving on.'; advance(); return; }
+  if (mode==='planned' && !stockLoaded){ openGate(); return; }
 
-  // Already recorded - move on instead of logging it twice.
-  if (isDone(st)) {
-    statusEl.textContent = 'Already recorded \u2014 skipping ahead.';
-    advanceOrFinish();
-    return;
+  if (st.type==='trim'){
+    if (Math.abs(Math.round(dispMm())-targetFor(st))>ON_TARGET_TOL){ reject(); return; }
+    record(st,'trim','',''); buzz(BUZZ.ok); advance(); return;
   }
-
-  if (mode === 'planned' && !stockLoaded) { openLoadGate(); return; }
-
-  // Waste tail: nothing to store, log it and move on.
-  if (st.type === 'trim') {
-    const target = targetFor(st);
-    if (Math.abs(Math.round(dispMm()) - target) > ON_TARGET_TOL) { rejectSave(); return; }
-    recordStep(st, 'trim', '', '');
-    buzz(BUZZ.ok);
-    advanceOrFinish();
-    return;
-  }
-
-  // Stub needs no cut, only a storage position.
-  if (st.type === 'stub') { pendingStep = st; openLocPrompt(); return; }
-
-  const target = targetFor(st);
-  if (Math.abs(Math.round(dispMm()) - target) > ON_TARGET_TOL) { rejectSave(); return; }
-  pendingStep = st;
-  openLocPrompt();
+  if (st.type==='stub'){ pendingStep=st; openPos(); return; }
+  if (Math.abs(Math.round(dispMm())-targetFor(st))>ON_TARGET_TOL){ reject(); return; }
+  pendingStep=st; openPos();
 }
 
-function rejectSave() {
+function reject(){
   stopTargetBuzz();
-  rejecting = true;
+  rejecting=true;
   frameEl.classList.remove('reject');
   void frameEl.offsetWidth;
   frameEl.classList.add('reject');
   buzz(BUZZ.reject);
-  statusEl.textContent = 'Rejected \u2014 not on target.';
+  status.textContent='Not on target \u2014 nothing recorded.';
 }
-frameEl.addEventListener('animationend', e => {
-  if (e.animationName === 'rejectFlash') { frameEl.classList.remove('reject'); rejecting = false; render(); }
+frameEl.addEventListener('animationend', e=>{
+  if(e.animationName==='rejectFlash'){ frameEl.classList.remove('reject'); rejecting=false; render(); }
 });
 
-function openLocPrompt() {
+function openPos(){
   stopTargetBuzz();
-  locBuf = ''; locNote.value = '';
-  locNote.classList.remove('show');
-  locValue.textContent = '--';
-  locCut.textContent = pendingStep.piece.id + '  \u00b7  ' + pendingStep.piece.mm
-                     + ' mm  \u00b7  ' + dim;
-  locOverlay.classList.add('show');
+  posBuf=''; posNote.value=''; posNote.classList.remove('show');
+  posValue.textContent='--';
+  posFor.textContent = pendingStep.piece.id+' \u00b7 '+pendingStep.piece.mm+' mm \u00b7 '+dim;
+  posVeil.classList.add('show');
   buzz(BUZZ.ok);
 }
-
-$('pad').addEventListener('click', e => {
-  const k = e.target.dataset.k;
-  if (!k) return;
+pad.addEventListener('click', e=>{
+  const k=e.target.dataset.k; if(!k) return;
   poke();
-  if (k === 'del') locBuf = locBuf.slice(0, -1);
-  else if (k === 'note') {
-    locNote.classList.toggle('show');
-    if (locNote.classList.contains('show')) locNote.focus();
-  }
-  else if (k === 'ok') { commitStep(); return; }
-  else if (locBuf.length < 2) { locBuf += k; buzz(BUZZ.tick); }   // 0-99
-  locValue.textContent = locBuf === '' ? '--' : locBuf;
+  if (k==='del') posBuf=posBuf.slice(0,-1);
+  else if (k==='note'){ posNote.classList.toggle('show');
+                        if(posNote.classList.contains('show')) posNote.focus(); }
+  else if (posBuf.length<2){ posBuf+=k; buzz(BUZZ.tick); }
+  posValue.textContent = posBuf===''?'--':posBuf;
 });
+posOk.onclick = commitPos;
 
-function recordStep(st, status, location, comment) {
-  const s = stock();
-  const rec = {
-    status: status,
-    dim: dim,
-    stockId: s.id, stockLabel: s.label, stockKind: s.kind, stockLength: s.length,
-    pieceId: st.piece ? st.piece.id : 'TRIM',
-    mm: st.piece ? st.piece.mm : st.waste,
-    tapeReading: st.pos != null ? Math.round(st.pos) : '',
-    stepType: st.type,
-    mode: mode,
-    location: location, comment: comment,
-    time: new Date().toTimeString().slice(0, 8),
-    iso: new Date().toISOString()
-  };
+function record(st,status_,location,comment){
+  const s=stock();
+  const rec={ status:status_, dim:dim, stockId:s.id, stockLabel:s.label,
+    stockKind:s.kind, stockLength:s.length,
+    pieceId: st.piece?st.piece.id:'TRIM', mm: st.piece?st.piece.mm:st.waste,
+    tapeReading: st.pos!=null?Math.round(st.pos):'', stepType:st.type, mode:mode,
+    location:location, comment:comment,
+    time:new Date().toTimeString().slice(0,8), iso:new Date().toISOString(),
+    key: fullKey(st) };
   session.log.push(rec);
-  session.doneKeys[fullKey(st)] = rec;
+  session.doneKeys[fullKey(st)]=rec;
   saveSession();
 }
 
-function commitStep() {
-  const comment = locNote.classList.contains('show') ? locNote.value.trim() : '';
-  if (locBuf === '' && !comment) { buzz(BUZZ.need); return; }
-  recordStep(pendingStep, 'cut', locBuf === '' ? '' : String(Number(locBuf)), comment);
-  pendingStep = null;
-  locOverlay.classList.remove('show');
+function commitPos(){
+  const comment = posNote.classList.contains('show') ? posNote.value.trim() : '';
+  if (posBuf==='' && !comment){ buzz(BUZZ.need); status.textContent='Enter a position or a comment.'; return; }
+  record(pendingStep,'cut', posBuf===''?'':String(Number(posBuf)), comment);
+  pendingStep=null;
+  posVeil.classList.remove('show');
   buzz(BUZZ.confirm);
-  advanceOrFinish();
+  advance();
 }
 
-function advanceOrFinish() {
-  const prevStock = stockIdx;
-  if (!advanceToNextUndone(true)) {
-    statusEl.textContent = 'Everything on ' + dim + ' is done.';
-    renderAll();
-    return;
-  }
-  if (stockIdx !== prevStock) {
-    stockLoaded = false;
-    renderAll();
-    openLoadGate();          // new pipe - always announce it, both modes
-    return;
-  }
+function advance(){
+  const prev=stockIdx;
+  if (!advanceToNextUndone(true)){ status.textContent='Everything on '+dim+' is done.'; renderAll(); return; }
+  if (stockIdx!==prev){ stockLoaded=false; renderAll(); openGate(); return; }
   renderAll();
 }
 
 /* ================= skipping ================= */
-function logSkipStep() {
-  const st = step(); if (!st) return;
-  recordStep(st, 'skipped', '', '');
-  advanceOrFinish();
+skipBtn.onclick = ()=>{
+  poke();
+  const st=step();
+  skipPieceSub.textContent = st ? stepName(st)+(st.piece?' \u00b7 '+st.piece.mm+' mm':'') : '';
+  const remaining = steps().filter(s=>!isDone(s)).length;
+  skipPipeSub.textContent = remaining+' step'+(remaining===1?'':'s')+' on '+(stock()?stock().label:'');
+  skipVeil.classList.add('show');
+};
+skipCancel.onclick = ()=> skipVeil.classList.remove('show');
+skipPiece.onclick = ()=>{
+  const st=step(); if(st && !isDone(st)) record(st,'skipped','','');
+  skipVeil.classList.remove('show'); advance();
+};
+skipPipe.onclick = ()=>{ skipWholePipe(); skipVeil.classList.remove('show'); };
+
+function skipWholePipe(){
+  const s=stock(); if(!s) return;
+  seq().steps.forEach(st=>{ if(!isDone(st)) record(st,'skipped','','pipe skipped'); });
+  advance();
 }
 
-function logSkipStock() {
-  const s = stock(); if (!s) return;
-  const sq = seq();
-  sq.steps.forEach(st => {
-    if (session.doneKeys[dim + '|' + st.key]) return;
-    recordStep(st, 'skipped', '', 'pipe skipped');
+/* ================= browse ================= */
+prevBtn.onclick = ()=>{
+  poke();
+  if (stepIdx>0) stepIdx--;
+  else if (stockIdx>0){ stockIdx--; seqCache=null; stockLoaded=false; stepIdx=steps().length-1; }
+  renderAll();
+};
+nextBtn.onclick = ()=>{
+  poke();
+  if (stepIdx<steps().length-1) stepIdx++;
+  else if (stockIdx<stocks().length-1){ stockIdx++; seqCache=null; stockLoaded=false; stepIdx=0; }
+  renderAll();
+};
+
+/* ================= mode ================= */
+modeChip.onclick = ()=>{
+  poke();
+  if (mode==='planned'){
+    mode='relative'; zeroRef=currentMm;
+    modeChip.textContent='REL'; modeChip.classList.add('rel');
+    status.textContent='Relative \u2014 zero anywhere, measure off the free end.';
+  } else {
+    mode='planned';
+    modeChip.textContent='PLAN'; modeChip.classList.remove('rel');
+    status.textContent='Planned \u2014 absolute readings from the clamped end.';
+  }
+  buzz(BUZZ.ok); renderAll();
+};
+zeroBtn.onclick = ()=>{
+  zeroRef=currentMm; buzz(BUZZ.confirm);
+  status.textContent='Zeroed at '+Math.round(zeroRef)+' mm.';
+  poke(); render();
+};
+
+/* ================= menu ================= */
+menuBtn.onclick = ()=>{ poke(); renderMenu(); menuVeil.classList.add('show'); };
+menuClose.onclick = ()=> menuVeil.classList.remove('show');
+[gateVeil,posVeil,skipVeil,menuVeil].forEach(v=>{
+  v.addEventListener('click', e=>{ if(e.target===v && v!==gateVeil && v!==posVeil) v.classList.remove('show'); });
+});
+
+function renderMenu(){
+  mVer.textContent = APP_VERSION;
+  mKerf.textContent = KERF+' mm';
+  mCount.textContent = session.log.length;
+  mLink.textContent = running ? (device && device.name ? device.name : 'connected') : 'not connected';
+  mWake.textContent = wakeLock ? 'staying on' : 'normal';
+  mSim.textContent = Math.round(Number(simRange.value))+' mm';
+  simWrap.style.display = running ? 'none' : 'block';
+  connectBtn.textContent = running ? 'Disconnect tape' : 'Connect tape';
+  hapticBtn.innerHTML = 'Haptics: '+(('vibrate' in navigator)?(haptics?'on':'off'):'unavailable')
+                      + '<small>Tap to toggle and test</small>';
+  logList.innerHTML='';
+  session.log.slice().reverse().slice(0,30).forEach(r=>{
+    const d=document.createElement('div');
+    d.className='lrow'+(r.status!=='cut'?' sk':'');
+    d.innerHTML='<span class="pid">'+r.pieceId+'</span><span>'+r.mm+' mm</span>'
+               +'<span class="loc">'+(r.status==='cut'?(r.comment?'\u2026':r.location):r.status)+'</span>';
+    d.title=r.stockLabel+' '+(r.comment||'');
+    logList.appendChild(d);
   });
 }
 
-prevStep.addEventListener('click', () => {
-  poke();
-  if (stepIdx > 0) stepIdx--;
-  else if (stockIdx > 0) { stockIdx--; seqCache = null; stockLoaded = false; stepIdx = steps().length - 1; }
+hapticBtn.onclick = ()=>{
+  if(!('vibrate' in navigator)){ status.textContent='No vibration hardware here.'; return; }
+  haptics=!haptics;
+  if(!haptics) stopTargetBuzz(); else navigator.vibrate(BUZZ.confirm);
+  renderMenu();
+};
+
+undoBtn.onclick = ()=>{
+  if(!session.log.length){ status.textContent='Nothing to undo.'; return; }
+  const last=session.log.pop();
+  if(last.key) delete session.doneKeys[last.key];
+  saveSession();
+  menuVeil.classList.remove('show');
+  advanceToNextUndone(false);
+  status.textContent='Undid '+last.pieceId+'.';
   renderAll();
-});
-nextStep.addEventListener('click', () => {
-  poke();
-  if (stepIdx < steps().length - 1) stepIdx++;
-  else if (stockIdx < stocks().length - 1) gotoStock(stockIdx + 1);
-  renderAll();
-});
-skipStep.addEventListener('click', () => { poke(); logSkipStep(); });
-skipStockBtn.addEventListener('click', () => {
-  poke(); logSkipStock();
-  if (stockIdx < stocks().length - 1) gotoStock(stockIdx + 1);
-  else { statusEl.textContent = 'Last pipe on this dimension.'; renderAll(); }
-});
+};
 
-dimSel.addEventListener('change', () => { poke(); setDim(dimSel.value); });
-modePlanned.addEventListener('click', () => {
-  mode = 'planned'; modePlanned.classList.add('on'); modeRelative.classList.remove('on');
-  poke(); renderAll();
-});
-modeRelative.addEventListener('click', () => {
-  mode = 'relative'; modeRelative.classList.add('on'); modePlanned.classList.remove('on');
-  zeroRef = currentMm;          // zero where the tape is right now
-  statusEl.textContent = 'Relative: zero anywhere, then pull to the piece length.';
-  buzz(BUZZ.ok);
-  poke(); renderAll();
-});
-
-// Re-zero at the current blade position. The list keeps running - only
-// the reference the app measures from changes.
-zeroBtn.addEventListener('click', () => {
-  zeroRef = currentMm;
-  buzz(BUZZ.confirm);
-  statusEl.textContent = 'Zeroed at ' + Math.round(zeroRef) + ' mm tape reading.';
-  poke(); render();
-});
-
-hapticBadge.addEventListener('click', () => {
-  if (!('vibrate' in navigator)) {
-    statusEl.textContent = 'This device has no vibration hardware (desktop browser?).';
+let clearArmed=false;
+clearBtn.onclick = ()=>{
+  if(!clearArmed){
+    clearArmed=true;
+    clearBtn.innerHTML='Tap again to erase '+session.log.length+' records<small>This cannot be undone</small>';
+    buzz(BUZZ.need);
+    setTimeout(()=>{ clearArmed=false;
+      clearBtn.innerHTML='Clear all stored data<small>Deletes every cut record on this device</small>'; }, 4000);
     return;
   }
-  haptics = !haptics;
-  refreshHapticBadge();
-  if (!haptics) stopTargetBuzz();
-  if (haptics) { navigator.vibrate(BUZZ.confirm); statusEl.textContent = 'Haptics on - that was a test buzz.'; }
-  else statusEl.textContent = 'Haptics off.';
-});
+  session={ log:[], doneKeys:{} };
+  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  clearArmed=false;
+  clearBtn.innerHTML='Clear all stored data<small>Deletes every cut record on this device</small>';
+  menuVeil.classList.remove('show');
+  setDim(dim);
+  status.textContent='All records cleared.';
+};
 
-/* ================= CSV ================= */
-exportBtn.addEventListener('click', () => {
-  if (!session.log.length) { statusEl.textContent = 'Nothing to export yet.'; return; }
-  const rows = [['dimension','stock_id','stock_label','stock_kind','stock_length_mm',
-                 'piece_id','piece_mm','tape_reading_mm','step_type','mode',
-                 'status','position','comment','timestamp']];
-  session.log.forEach(r => {
-    rows.push([r.dim, r.stockId, r.stockLabel, r.stockKind, r.stockLength,
-               r.pieceId, r.mm, r.tapeReading, r.stepType, r.mode,
-               r.status, r.location, (r.comment||'').replace(/"/g,'""'), r.iso]);
-  });
-  const csv = rows.map(r => r.map(v => '"' + (v == null ? '' : v) + '"').join(';')).join('\r\n');
+exportBtn.onclick = ()=>{
+  if(!session.log.length){ status.textContent='Nothing to export yet.'; return; }
+  const rows=[['dimension','stock_id','stock_label','stock_kind','stock_length_mm',
+               'piece_id','piece_mm','tape_reading_mm','step_type','mode',
+               'status','position','comment','timestamp']];
+  session.log.forEach(r=>rows.push([r.dim,r.stockId,r.stockLabel,r.stockKind,r.stockLength,
+    r.pieceId,r.mm,r.tapeReading,r.stepType,r.mode,r.status,r.location,
+    (r.comment||'').replace(/"/g,'""'),r.iso]));
+  const csv=rows.map(r=>r.map(v=>'"'+(v==null?'':v)+'"').join(';')).join('\r\n');
   // UTF-8 BOM so Excel reads the Swedish characters correctly
-  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'cuts-' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
-  URL.revokeObjectURL(a.href);
-  statusEl.textContent = 'Exported ' + session.log.length + ' rows.';
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='cuts-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click(); URL.revokeObjectURL(a.href);
+  status.textContent='Exported '+session.log.length+' rows.';
+};
+
+simRange.addEventListener('input', ()=>{
+  poke();
+  if(!running){ currentMm=Number(simRange.value); mSim.textContent=Math.round(currentMm)+' mm'; render(); }
 });
 
 /* ================= power ================= */
-let wakeLock = null;
-async function acquireWakeLock() {
-  if (!('wakeLock' in navigator)) { wakeBadge.textContent = 'no wake api'; return; }
-  try {
+let wakeLock=null;
+async function acquireWakeLock(){
+  if(!('wakeLock' in navigator)) return;
+  try{
     wakeLock = await navigator.wakeLock.request('screen');
-    wakeBadge.textContent = 'screen on'; wakeBadge.classList.add('on');
-    wakeLock.addEventListener('release', () => {
-      wakeBadge.textContent = 'screen off'; wakeBadge.classList.remove('on');
-    });
-  } catch (e) { wakeBadge.textContent = 'wake refused'; }
+    wakeLock.addEventListener('release', ()=>{ wakeLock=null; });
+  }catch(e){}
 }
-function releaseWakeLock() { if (wakeLock) { wakeLock.release().catch(()=>{}); wakeLock = null; } }
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && running) acquireWakeLock();
+function releaseWakeLock(){ if(wakeLock){ wakeLock.release().catch(()=>{}); wakeLock=null; } }
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='visible' && running) acquireWakeLock();
 });
-function poke() { lastActivity = Date.now(); if (powerStage !== 0) setPowerStage(0); }
-['pointerdown','keydown'].forEach(ev => document.addEventListener(ev, poke, true));
-function setPowerStage(stage) {
-  powerStage = stage;
-  if (stage === 0) {
-    veil.style.opacity = 0; veil.classList.remove('pointer');
-    powerBadge.textContent = 'active'; powerBadge.classList.add('on');
-    if (running && !wakeLock) acquireWakeLock();
-  } else if (stage === 1) {
-    veil.style.opacity = .6; veil.classList.remove('pointer');
-    powerBadge.textContent = 'dimmed'; powerBadge.classList.remove('on');
-  } else if (stage === 2) {
-    veil.style.opacity = .97; veil.classList.add('pointer');
-    powerBadge.textContent = 'blacked out'; powerBadge.classList.remove('on');
-  } else {
-    // Only reachable with no tape connected. Once Android actually sleeps
-    // the screen, Chrome throttles our timers to roughly once a minute,
-    // so we could never notice blade movement and wake ourselves back up.
-    // While a tape is linked we therefore stay awake indefinitely and just
-    // keep the veil black - on AMOLED those pixels are off anyway.
-    veil.style.opacity = .97; veil.classList.add('pointer');
-    powerBadge.textContent = 'sleeping'; powerBadge.classList.remove('on');
-    releaseWakeLock();
+function poke(){ lastActivity=Date.now(); if(powerStage!==0) setPowerStage(0); }
+['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,poke,true));
+
+function setPowerStage(stage){
+  powerStage=stage;
+  if(stage===0){ dimVeil.style.opacity=0; dimVeil.classList.remove('grab');
+                 if(running && !wakeLock) acquireWakeLock(); }
+  else if(stage===1){ dimVeil.style.opacity=.6; dimVeil.classList.remove('grab'); }
+  else if(stage===2){ dimVeil.style.opacity=.97; dimVeil.classList.add('grab'); }
+  else {
+    // Only with no tape connected. Once Android sleeps the screen our
+    // timers are throttled to about once a minute, so we could never
+    // notice blade movement and wake ourselves back up.
+    dimVeil.style.opacity=.97; dimVeil.classList.add('grab'); releaseWakeLock();
   }
 }
-veil.addEventListener('pointerdown', e => { e.stopPropagation(); poke(); }, true);
-setInterval(() => {
-  const idle = (Date.now() - lastActivity) / 1000;
-  let want = 0;
-  // Never hand the screen back to Android while the tape is connected.
-  if (idle > RELEASE_AFTER && !running) want = 3;
-  else if (idle > DEEP_AFTER) want = 2;
-  else if (idle > DIM_AFTER) want = 1;
-  if (want !== powerStage) setPowerStage(want);
-}, 2000);
+dimVeil.addEventListener('pointerdown', e=>{ e.stopPropagation(); poke(); }, true);
+setInterval(()=>{
+  const idle=(Date.now()-lastActivity)/1000;
+  let want=0;
+  if(idle>RELEASE_AFTER && !running) want=3;
+  else if(idle>DEEP_AFTER) want=2;
+  else if(idle>DIM_AFTER) want=1;
+  if(want!==powerStage) setPowerStage(want);
+},2000);
 
 /* ================= BLE ================= */
-btn.addEventListener('click', async () => {
+connectBtn.onclick = async ()=>{
   poke();
-  if (device && device.gatt.connected) { device.gatt.disconnect(); return; }
-  if (!navigator.bluetooth) { statusEl.textContent = 'Web Bluetooth unavailable in this browser.'; return; }
-  try {
-    statusEl.textContent = 'Pick your tape...';
+  if(device && device.gatt.connected){ device.gatt.disconnect(); return; }
+  if(!navigator.bluetooth){ status.textContent='Web Bluetooth unavailable in this browser.'; return; }
+  try{
+    status.textContent='Pick your tape\u2026';
     device = await navigator.bluetooth.requestDevice({
-      acceptAllDevices: true,
-      optionalServices: [POSITION_SERVICE, SYNC_SERVICE, BATTERY_SERVICE]
+      acceptAllDevices:true,
+      optionalServices:[POSITION_SERVICE,SYNC_SERVICE,BATTERY_SERVICE]
     });
     device.addEventListener('gattserverdisconnected', onDisconnect);
     const server = await device.gatt.connect();
     const pos = await server.getPrimaryService(POSITION_SERVICE);
     liveChar = await pos.getCharacteristic(LIVE_MEASUREMENT);
-    try {
+    try{
       const sync = await server.getPrimaryService(SYNC_SERVICE);
       commChar = await sync.getCharacteristic(SYNC_COMM);
       await commChar.startNotifications();
       commChar.addEventListener('characteristicvaluechanged', onSyncNotify);
-    } catch (e) { commChar = null; }
-    btn.textContent = 'Disconnect';
-    simRow.classList.add('hidden');
-    linkBadge.textContent = 'tape linked'; linkBadge.classList.add('on');
-    statusEl.textContent = commChar ? 'Live. Press save on the tape.' : 'Live view only.';
+    }catch(e){ commChar=null; }
+    running=true;
     acquireWakeLock();
-    running = true;
+    menuVeil.classList.remove('show');
+    status.textContent = commChar ? 'Live \u2014 press save on the tape.' : 'Live view only.';
+    renderAll();
     tick();
-  } catch (err) {
-    statusEl.textContent = err.name === 'NotFoundError'
+  }catch(err){
+    status.textContent = err.name==='NotFoundError'
       ? 'No tape selected. Wake it by pulling the blade first.'
-      : 'Error: ' + err.message;
+      : 'Error: '+err.message;
   }
-});
+};
 
-function onSyncNotify(ev) {
-  const dv = ev.target.value;
-  if (dv.byteLength < 8) return;
-  if (dv.getUint32(0, true) === OPCODE_MEASUREMENT) { poke(); attemptSave(); }
+function onSyncNotify(ev){
+  const dv=ev.target.value;
+  if(dv.byteLength<8) return;
+  if(dv.getUint32(0,true)===OPCODE_MEASUREMENT){ poke(); attemptSave(); }
 }
 
-async function tick() {
-  if (!running || !liveChar) return;
-  const t0 = performance.now();
-  try {
-    const v = await liveChar.readValue();
-    const um = v.getInt32(0, true);           // SDK: 4 bytes, micrometres
-    if (lastUm === null || Math.abs(um - lastUm) >= DEADBAND_UM) { lastUm = um; poke(); }
-    currentMm = um / 1000;
+async function tick(){
+  if(!running || !liveChar) return;
+  const t0=performance.now();
+  try{
+    const v=await liveChar.readValue();
+    const um=v.getInt32(0,true);            // SDK: 4 bytes, micrometres
+    if(lastUm===null || Math.abs(um-lastUm)>=DEADBAND_UM){ lastUm=um; poke(); }
+    currentMm=um/1000;
     render();
-  } catch (e) { /* transient */ }
-  const hz = powerStage >= 2 ? IDLE_HZ : ACTIVE_HZ;
-  pollTimer = setTimeout(tick, Math.max(0, (1000 / hz) - (performance.now() - t0)));
+  }catch(e){}
+  const hz = powerStage>=2 ? IDLE_HZ : ACTIVE_HZ;
+  pollTimer=setTimeout(tick, Math.max(0,(1000/hz)-(performance.now()-t0)));
 }
 
-function onDisconnect() {
-  running = false;
-  stopTargetBuzz();
-  clearTimeout(pollTimer);
-  pollTimer = null; liveChar = null; commChar = null;
-  btn.textContent = 'Connect';
-  simRow.classList.remove('hidden');
-  linkBadge.textContent = 'no tape'; linkBadge.classList.remove('on');
-  statusEl.textContent = 'Tape disconnected.';
+function onDisconnect(){
+  running=false; stopTargetBuzz();
+  clearTimeout(pollTimer); pollTimer=null; liveChar=null; commChar=null;
   releaseWakeLock();
+  status.textContent='Tape disconnected.';
+  renderAll();
 }
 
-sim.addEventListener('input', () => { poke(); if (!running) { currentMm = Number(sim.value); render(); } });
-saveBtn.addEventListener('click', () => { poke(); attemptSave(); });
+saveBtn.onclick = ()=>{ poke(); attemptSave(); };
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-}
+if('serviceWorker' in navigator)
+  window.addEventListener('load', ()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 
 /* ================= boot ================= */
-verBadge.textContent = APP_VERSION;
-refreshHapticBadge();
-loadSession();
-buildDimSelect();
+const frameEl=$('frame');
+loadStored();
+Object.keys(DATA).forEach(name=>{
+  const o=document.createElement('option'); o.value=name; o.textContent=name; dimSel.appendChild(o);
+});
+dimSel.onchange = ()=>{ poke(); setDim(dimSel.value); };
 setPowerStage(0);
 setDim(Object.keys(DATA)[0]);
+status.textContent='Ready.';
 </script>
 </body>
 </html>
