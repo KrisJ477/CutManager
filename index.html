@@ -215,7 +215,7 @@
   </div>
 
   <div id="badges">
-    <span class="badge" id="verBadge">v7</span>
+    <span class="badge" id="verBadge">v8</span>
     <span class="badge" id="kerfBadge">kerf 0</span>
     <span class="badge" id="hapticBadge">haptics</span>
     <span class="badge" id="wakeBadge">screen off</span>
@@ -277,7 +277,7 @@
 // correct. Watch the kerf badge: it turns red if a bar can no longer fit.
 let KERF = 0;
 
-const APP_VERSION = 'v7';
+const APP_VERSION = 'v8';
 const POSITION_SERVICE = '7ad09b02-1f68-4c68-922f-a063dfdb7912';
 const LIVE_MEASUREMENT = '0d689f63-fdf9-4f0f-8522-736d4723ad2f';
 const SYNC_SERVICE     = '43744f76-de4d-4b05-a14a-0c133a785d8e';
@@ -345,6 +345,23 @@ const BUZZ = {
 function buzz(pattern) {
   if (!haptics) return;
   try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
+}
+
+/* On-target pulse: the haptic twin of the flashing green frame. Runs
+   until the blade leaves the window, the step is saved, or an overlay
+   opens. Deliberately slower than the 5 Hz visual flash - a continuous
+   motor buzz is unpleasant and drains the battery. */
+let targetBuzzTimer = null;
+function startTargetBuzz() {
+  if (targetBuzzTimer || !haptics) return;
+  buzz([70]);
+  targetBuzzTimer = setInterval(() => buzz([70]), 380);
+}
+function stopTargetBuzz() {
+  if (!targetBuzzTimer) return;
+  clearInterval(targetBuzzTimer);
+  targetBuzzTimer = null;
+  try { if (navigator.vibrate) navigator.vibrate(0); } catch (e) {}
 }
 function refreshHapticBadge() {
   const supported = 'vibrate' in navigator;
@@ -568,6 +585,7 @@ function render() {
     frameEl.classList.remove('onTarget'); frameEl.classList.add('done');
     arrowL.classList.remove('show'); arrowR.classList.remove('show');
     diffOut.textContent = ''; pieceHint.textContent = 'Dimension complete';
+    stopTargetBuzz();
     return;
   }
 
@@ -581,6 +599,7 @@ function render() {
     diffOut.textContent = '';
     pieceHint.textContent = st.piece.id + '  \u00b7  ' + st.piece.mm
                           + ' mm  \u00b7  NO CUT - already free, just store it';
+    stopTargetBuzz();
     return;
   }
 
@@ -599,8 +618,10 @@ function render() {
     if (!rejecting) frameEl.style.backgroundColor = '';
     diffOut.textContent = 'On target';
     arrowL.classList.remove('show'); arrowR.classList.remove('show');
+    if (!pendingStep && !locOverlay.classList.contains('show')) startTargetBuzz();
   } else {
     frameEl.classList.remove('onTarget');
+    stopTargetBuzz();
     if (!rejecting) frameEl.style.backgroundColor = errorColor(err);
     diffOut.textContent = (diff > 0 ? '+' : '') + diff + ' mm';
     arrowL.classList.toggle('show', diff > 0);
@@ -642,6 +663,7 @@ function attemptSave() {
 }
 
 function rejectSave() {
+  stopTargetBuzz();
   rejecting = true;
   frameEl.classList.remove('reject');
   void frameEl.offsetWidth;
@@ -654,6 +676,7 @@ frameEl.addEventListener('animationend', e => {
 });
 
 function openLocPrompt() {
+  stopTargetBuzz();
   locBuf = ''; locNote.value = '';
   locNote.classList.remove('show');
   locValue.textContent = '--';
@@ -782,6 +805,7 @@ hapticBadge.addEventListener('click', () => {
   }
   haptics = !haptics;
   refreshHapticBadge();
+  if (!haptics) stopTargetBuzz();
   if (haptics) { navigator.vibrate(BUZZ.confirm); statusEl.textContent = 'Haptics on - that was a test buzz.'; }
   else statusEl.textContent = 'Haptics off.';
 });
@@ -917,6 +941,7 @@ async function tick() {
 
 function onDisconnect() {
   running = false;
+  stopTargetBuzz();
   clearTimeout(pollTimer);
   pollTimer = null; liveChar = null; commChar = null;
   btn.textContent = 'Connect';
