@@ -215,7 +215,7 @@
   </div>
 
   <div id="badges">
-    <span class="badge" id="verBadge">v6</span>
+    <span class="badge" id="verBadge">v7</span>
     <span class="badge" id="kerfBadge">kerf 0</span>
     <span class="badge" id="hapticBadge">haptics</span>
     <span class="badge" id="wakeBadge">screen off</span>
@@ -277,7 +277,7 @@
 // correct. Watch the kerf badge: it turns red if a bar can no longer fit.
 let KERF = 0;
 
-const APP_VERSION = 'v6';
+const APP_VERSION = 'v7';
 const POSITION_SERVICE = '7ad09b02-1f68-4c68-922f-a063dfdb7912';
 const LIVE_MEASUREMENT = '0d689f63-fdf9-4f0f-8522-736d4723ad2f';
 const SYNC_SERVICE     = '43744f76-de4d-4b05-a14a-0c133a785d8e';
@@ -335,12 +335,12 @@ let haptics = true;
    hardware. Only Android will actually buzz. Patterns are deliberately
    punchy: gloves and a noisy workshop swallow anything subtle. */
 const BUZZ = {
-  ok:      [45],
-  confirm: [30, 45, 90],
-  reject:  [90, 70, 90, 70, 90],
-  need:    [40, 60, 40],
-  gate:    [120],
-  tick:    [18]
+  ok:      [90],
+  confirm: [60, 50, 180],
+  reject:  [180, 90, 180, 90, 180],
+  need:    [70, 90, 70],
+  gate:    [250],
+  tick:    [30]
 };
 function buzz(pattern) {
   if (!haptics) return;
@@ -836,10 +836,15 @@ function setPowerStage(stage) {
     veil.style.opacity = .6; veil.classList.remove('pointer');
     powerBadge.textContent = 'dimmed'; powerBadge.classList.remove('on');
   } else if (stage === 2) {
-    veil.style.opacity = .94; veil.classList.add('pointer');
-    powerBadge.textContent = 'deep dim'; powerBadge.classList.remove('on');
+    veil.style.opacity = .97; veil.classList.add('pointer');
+    powerBadge.textContent = 'blacked out'; powerBadge.classList.remove('on');
   } else {
-    veil.style.opacity = .94; veil.classList.add('pointer');
+    // Only reachable with no tape connected. Once Android actually sleeps
+    // the screen, Chrome throttles our timers to roughly once a minute,
+    // so we could never notice blade movement and wake ourselves back up.
+    // While a tape is linked we therefore stay awake indefinitely and just
+    // keep the veil black - on AMOLED those pixels are off anyway.
+    veil.style.opacity = .97; veil.classList.add('pointer');
     powerBadge.textContent = 'sleeping'; powerBadge.classList.remove('on');
     releaseWakeLock();
   }
@@ -848,7 +853,8 @@ veil.addEventListener('pointerdown', e => { e.stopPropagation(); poke(); }, true
 setInterval(() => {
   const idle = (Date.now() - lastActivity) / 1000;
   let want = 0;
-  if (idle > RELEASE_AFTER) want = 3;
+  // Never hand the screen back to Android while the tape is connected.
+  if (idle > RELEASE_AFTER && !running) want = 3;
   else if (idle > DEEP_AFTER) want = 2;
   else if (idle > DIM_AFTER) want = 1;
   if (want !== powerStage) setPowerStage(want);
