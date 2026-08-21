@@ -215,7 +215,7 @@
   </div>
 
   <div id="badges">
-    <span class="badge" id="verBadge">v8</span>
+    <span class="badge" id="verBadge">v9</span>
     <span class="badge" id="kerfBadge">kerf 0</span>
     <span class="badge" id="hapticBadge">haptics</span>
     <span class="badge" id="wakeBadge">screen off</span>
@@ -277,7 +277,7 @@
 // correct. Watch the kerf badge: it turns red if a bar can no longer fit.
 let KERF = 0;
 
-const APP_VERSION = 'v8';
+const APP_VERSION = 'v9';
 const POSITION_SERVICE = '7ad09b02-1f68-4c68-922f-a063dfdb7912';
 const LIVE_MEASUREMENT = '0d689f63-fdf9-4f0f-8522-736d4723ad2f';
 const SYNC_SERVICE     = '43744f76-de4d-4b05-a14a-0c133a785d8e';
@@ -456,21 +456,39 @@ function buildDimSelect() {
 
 function setDim(name) {
   dim = name; stockIdx = 0; stepIdx = 0; seqCache = null; stockLoaded = false;
-  advanceToNextUndone();
+  advanceToNextUndone(false);
   renderAll();
-  if (mode === 'planned') openLoadGate();
+  openLoadGate();
 }
 
-function advanceToNextUndone() {
+/* Find the next step that still needs doing.
+   Scans forward from the cursor and then WRAPS to the start of the
+   dimension. Without the wrap, jumping around with Prev/Next in relative
+   mode could leave the cursor past undone steps, and it would then stick
+   on the last step forever - re-prompting the same stub. */
+function advanceToNextUndone(startAfterCurrent) {
   const list = stocks();
-  for (let s = stockIdx; s < list.length; s++) {
+  if (!list.length) return false;
+
+  const positions = [];
+  for (let s = 0; s < list.length; s++) {
     const sq = buildSequence(list[s]);
-    for (let i = (s === stockIdx ? stepIdx : 0); i < sq.steps.length; i++) {
-      if (!session.doneKeys[dim + '|' + sq.steps[i].key]) {
-        if (s !== stockIdx) { stockIdx = s; seqCache = null; stockLoaded = false; }
-        stepIdx = i;
-        return true;
-      }
+    for (let i = 0; i < sq.steps.length; i++) {
+      positions.push({ s: s, i: i, key: sq.steps[i].key });
+    }
+  }
+  if (!positions.length) return false;
+
+  let cur = positions.findIndex(p => p.s === stockIdx && p.i === stepIdx);
+  if (cur < 0) cur = 0;
+  const begin = startAfterCurrent ? cur + 1 : cur;
+
+  for (let n = 0; n < positions.length; n++) {
+    const p = positions[(begin + n) % positions.length];
+    if (!session.doneKeys[dim + '|' + p.key]) {
+      if (p.s !== stockIdx) { stockIdx = p.s; seqCache = null; stockLoaded = false; }
+      stepIdx = p.i;
+      return true;
     }
   }
   return false;
@@ -479,8 +497,13 @@ function advanceToNextUndone() {
 function gotoStock(i) {
   if (i < 0 || i >= stocks().length) return;
   stockIdx = i; stepIdx = 0; seqCache = null; stockLoaded = false;
+  // Land on the first step that still needs doing on this pipe.
+  const sq = seq();
+  for (let n = 0; n < sq.steps.length; n++) {
+    if (!session.doneKeys[dim + '|' + sq.steps[n].key]) { stepIdx = n; break; }
+  }
   renderAll();
-  if (mode === 'planned') openLoadGate();
+  openLoadGate();
 }
 
 /* ================= load gate ================= */
@@ -641,6 +664,14 @@ function errorColor(err) {
 function attemptSave() {
   const st = step();
   if (!st || pendingStep) return;
+
+  // Already recorded - move on instead of logging it twice.
+  if (isDone(st)) {
+    statusEl.textContent = 'Already recorded \u2014 skipping ahead.';
+    advanceOrFinish();
+    return;
+  }
+
   if (mode === 'planned' && !stockLoaded) { openLoadGate(); return; }
 
   // Waste tail: nothing to store, log it and move on.
@@ -731,13 +762,18 @@ function commitStep() {
 }
 
 function advanceOrFinish() {
-  const wasLast = steps().every(st => isDone(st));
-  if (wasLast) {
-    if (stockIdx < stocks().length - 1) { gotoStock(stockIdx + 1); return; }
-    statusEl.textContent = 'All pipes done on ' + dim + '.';
-    renderAll(); return;
+  const prevStock = stockIdx;
+  if (!advanceToNextUndone(true)) {
+    statusEl.textContent = 'Everything on ' + dim + ' is done.';
+    renderAll();
+    return;
   }
-  if (!advanceToNextUndone()) statusEl.textContent = 'Nothing left on ' + dim + '.';
+  if (stockIdx !== prevStock) {
+    stockLoaded = false;
+    renderAll();
+    openLoadGate();          // new pipe - always announce it, both modes
+    return;
+  }
   renderAll();
 }
 
