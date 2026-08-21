@@ -2,7 +2,7 @@
 // once stay available offline. Bump CACHE on every meaningful change so
 // old installs evict themselves.
 
-const CACHE = 'cutguide-v5';
+const CACHE = 'cutguide-v6';
 const ASSETS = [
   './',
   './index.html',

@@ -90,6 +90,13 @@
   #navRow button { font-size: .68rem; padding: .45rem .2rem; background: #24272c; color: #b6bac0;
                    border: 0; border-radius: .42rem; flex: 1; font-weight: 700; }
   #navRow button.warn { background: #33241a; color: #e8a15c; }
+  #navRow button.zero { background: #1b3040; color: #7fc4ff; display: none; }
+  #navRow button.zero.show { display: block; }
+  #hapticBadge { cursor: pointer; }
+  #hapticBadge.on { background: #2f2410; color: #ffc400; }
+  #hapticBadge.off { background: #2a1c1c; color: #b06a6a; }
+  #zeroInfo { font-size: .66rem; color: #7fc4ff; text-align: center;
+              font-variant-numeric: tabular-nums; min-height: 1em; }
 
   #done { width: 100%; display: flex; flex-direction: column; gap: .16rem;
           max-height: 5.5rem; overflow-y: auto; }
@@ -197,17 +204,20 @@
   </div>
 
   <div id="diffOut"></div>
+  <div id="zeroInfo"></div>
 
   <div id="navRow">
     <button id="prevStep">&#8592; Prev</button>
     <button id="nextStep">Next &#8594;</button>
+    <button id="zeroBtn" class="zero">Zero here</button>
     <button id="skipStep" class="warn">Skip piece</button>
     <button id="skipStockBtn" class="warn">Skip pipe</button>
   </div>
 
   <div id="badges">
-    <span class="badge" id="verBadge">v5</span>
+    <span class="badge" id="verBadge">v6</span>
     <span class="badge" id="kerfBadge">kerf 0</span>
+    <span class="badge" id="hapticBadge">haptics</span>
     <span class="badge" id="wakeBadge">screen off</span>
     <span class="badge" id="linkBadge">no tape</span>
     <span class="badge" id="powerBadge">active</span>
@@ -267,7 +277,7 @@
 // correct. Watch the kerf badge: it turns red if a bar can no longer fit.
 let KERF = 0;
 
-const APP_VERSION = 'v5';
+const APP_VERSION = 'v6';
 const POSITION_SERVICE = '7ad09b02-1f68-4c68-922f-a063dfdb7912';
 const LIVE_MEASUREMENT = '0d689f63-fdf9-4f0f-8522-736d4723ad2f';
 const SYNC_SERVICE     = '43744f76-de4d-4b05-a14a-0c133a785d8e';
@@ -288,7 +298,8 @@ const sim=$('sim'), simOut=$('simOut'), simRow=$('simRow');
 const btn=$('connect'), saveBtn=$('save'), exportBtn=$('export');
 const statusEl=$('status'), diffOut=$('diffOut');
 const wakeBadge=$('wakeBadge'), linkBadge=$('linkBadge'), powerBadge=$('powerBadge');
-const verBadge=$('verBadge'), kerfBadge=$('kerfBadge');
+const verBadge=$('verBadge'), kerfBadge=$('kerfBadge'), hapticBadge=$('hapticBadge');
+const zeroBtn=$('zeroBtn'), zeroInfo=$('zeroInfo');
 const dimSel=$('dimSel'), stockCard=$('stockCard'), stockLabel=$('stockLabel');
 const stockMeta=$('stockMeta'), stockProg=$('stockProg'), loadWarn=$('loadWarn');
 const loadOverlay=$('loadOverlay'), loadPipe=$('loadPipe'), loadDetail=$('loadDetail'), loadFirst=$('loadFirst');
@@ -312,6 +323,36 @@ let pollTimer=null, running=false, rejecting=false;
 let currentMm=0, lastUm=null;
 let lastActivity=Date.now(), powerStage=0;
 let pendingStep=null, locBuf='';
+
+// Relative mode: the tape is zeroed wherever the fitter likes and the
+// app reports distance travelled from that point, so a piece can be cut
+// off the free end after the planned layout has been ruined.
+let zeroRef = 0;
+let haptics = true;
+
+/* ================= haptics =================
+   navigator.vibrate exists on desktop but does nothing - there is no
+   hardware. Only Android will actually buzz. Patterns are deliberately
+   punchy: gloves and a noisy workshop swallow anything subtle. */
+const BUZZ = {
+  ok:      [45],
+  confirm: [30, 45, 90],
+  reject:  [90, 70, 90, 70, 90],
+  need:    [40, 60, 40],
+  gate:    [120],
+  tick:    [18]
+};
+function buzz(pattern) {
+  if (!haptics) return;
+  try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
+}
+function refreshHapticBadge() {
+  const supported = 'vibrate' in navigator;
+  hapticBadge.textContent = !supported ? 'no haptics'
+                          : (haptics ? 'haptics on' : 'haptics off');
+  hapticBadge.classList.toggle('on', supported && haptics);
+  hapticBadge.classList.toggle('off', supported && !haptics);
+}
 
 const STORE_KEY = 'kj-cutguide-session-v5';
 function saveSession() { try { localStorage.setItem(STORE_KEY, JSON.stringify(session)); } catch(e){} }
@@ -373,8 +414,17 @@ function isDone(st)  { return !!session.doneKeys[fullKey(st)]; }
 function targetFor(st) {
   if (!st) return null;
   if (st.type === 'stub') return null;
-  if (mode === 'relative') return st.type === 'trim' ? null : st.piece.mm;
+  // Relative: measure the piece itself off the free end. The waste tail
+  // is equally measurable that way, so the trim step works too.
+  if (mode === 'relative') return st.type === 'trim' ? st.waste : st.piece.mm;
   return Math.round(st.pos);
+}
+
+// What the fitter is actually reading: absolute tape position in planned
+// mode, distance travelled from the zero point in relative mode. Direction
+// does not matter - only how far the blade has moved.
+function dispMm() {
+  return mode === 'relative' ? Math.abs(currentMm - zeroRef) : currentMm;
 }
 
 /* ================= navigation ================= */
@@ -427,7 +477,7 @@ function openLoadGate() {
   loadFirst.textContent = 'First cut at ' + Math.round(sq.steps[0].pos) + ' mm'
                         + (sq.waste > 0 ? '  (trims ' + sq.waste + ' mm tail)' : '');
   loadOverlay.classList.add('show');
-  if (navigator.vibrate) navigator.vibrate(60);
+  buzz(BUZZ.gate);
 }
 loadOk.addEventListener('click', () => {
   stockLoaded = true; loadOverlay.classList.remove('show'); renderAll();
@@ -501,10 +551,15 @@ function renderLog() {
 
 function render() {
   const st = step();
-  const shownCurrent = Math.round(currentMm);
+  const shownCurrent = Math.round(dispMm());
   currentNum.textContent = shownCurrent;
   simOut.textContent = Math.round(Number(sim.value)) + ' mm';
-  targetLabel.textContent = mode === 'planned' ? 'Cut at tape reading:' : 'Piece length:';
+  targetLabel.textContent = mode === 'planned' ? 'Cut at tape reading:' : 'Length from zero:';
+
+  zeroBtn.classList.toggle('show', mode === 'relative');
+  zeroInfo.textContent = mode === 'relative'
+    ? 'Zeroed at ' + Math.round(zeroRef) + ' mm  \u00b7  tape reads ' + Math.round(currentMm) + ' mm'
+    : '';
 
   frameEl.classList.remove('stub');
 
@@ -517,16 +572,15 @@ function render() {
   }
 
   // The leftmost piece needs no cut - it only needs a storage position.
-  if (st.type === 'stub' || (mode === 'relative' && st.type === 'trim')) {
+  if (st.type === 'stub') {
     targetNum.textContent = '--';
     frameEl.classList.remove('onTarget', 'done');
     frameEl.classList.add('stub');
     frameEl.style.backgroundColor = '';
     arrowL.classList.remove('show'); arrowR.classList.remove('show');
     diffOut.textContent = '';
-    pieceHint.textContent = st.type === 'stub'
-      ? st.piece.id + '  \u00b7  ' + st.piece.mm + ' mm  \u00b7  NO CUT - already free, just store it'
-      : 'Trim step - skip in relative mode';
+    pieceHint.textContent = st.piece.id + '  \u00b7  ' + st.piece.mm
+                          + ' mm  \u00b7  NO CUT - already free, just store it';
     return;
   }
 
@@ -537,7 +591,7 @@ function render() {
     ? 'TRIM TAIL  \u00b7  ' + st.waste + ' mm waste'
     : (mode === 'planned'
         ? st.piece.id + '  \u2192  piece ' + st.piece.mm + ' mm'
-        : st.piece.id + '  \u2192  zero the tape at the cut end');
+        : st.piece.id + '  \u2192  ' + st.piece.mm + ' mm from the free end');
 
   const diff = shownCurrent - target, err = Math.abs(diff);
   if (err <= ON_TARGET_TOL) {
@@ -570,10 +624,10 @@ function attemptSave() {
 
   // Waste tail: nothing to store, log it and move on.
   if (st.type === 'trim') {
-    if (mode === 'relative') { advanceOrFinish(); return; }
     const target = targetFor(st);
-    if (Math.abs(Math.round(currentMm) - target) > ON_TARGET_TOL) { rejectSave(); return; }
+    if (Math.abs(Math.round(dispMm()) - target) > ON_TARGET_TOL) { rejectSave(); return; }
     recordStep(st, 'trim', '', '');
+    buzz(BUZZ.ok);
     advanceOrFinish();
     return;
   }
@@ -582,7 +636,7 @@ function attemptSave() {
   if (st.type === 'stub') { pendingStep = st; openLocPrompt(); return; }
 
   const target = targetFor(st);
-  if (Math.abs(Math.round(currentMm) - target) > ON_TARGET_TOL) { rejectSave(); return; }
+  if (Math.abs(Math.round(dispMm()) - target) > ON_TARGET_TOL) { rejectSave(); return; }
   pendingStep = st;
   openLocPrompt();
 }
@@ -592,7 +646,7 @@ function rejectSave() {
   frameEl.classList.remove('reject');
   void frameEl.offsetWidth;
   frameEl.classList.add('reject');
-  if (navigator.vibrate) navigator.vibrate([60, 60, 60]);
+  buzz(BUZZ.reject);
   statusEl.textContent = 'Rejected \u2014 not on target.';
 }
 frameEl.addEventListener('animationend', e => {
@@ -606,7 +660,7 @@ function openLocPrompt() {
   locCut.textContent = pendingStep.piece.id + '  \u00b7  ' + pendingStep.piece.mm
                      + ' mm  \u00b7  ' + dim;
   locOverlay.classList.add('show');
-  if (navigator.vibrate) navigator.vibrate(40);
+  buzz(BUZZ.ok);
 }
 
 $('pad').addEventListener('click', e => {
@@ -619,7 +673,7 @@ $('pad').addEventListener('click', e => {
     if (locNote.classList.contains('show')) locNote.focus();
   }
   else if (k === 'ok') { commitStep(); return; }
-  else if (locBuf.length < 2) locBuf += k;      // 0-99
+  else if (locBuf.length < 2) { locBuf += k; buzz(BUZZ.tick); }   // 0-99
   locValue.textContent = locBuf === '' ? '--' : locBuf;
 });
 
@@ -645,11 +699,11 @@ function recordStep(st, status, location, comment) {
 
 function commitStep() {
   const comment = locNote.classList.contains('show') ? locNote.value.trim() : '';
-  if (locBuf === '' && !comment) { if (navigator.vibrate) navigator.vibrate([60,60]); return; }
+  if (locBuf === '' && !comment) { buzz(BUZZ.need); return; }
   recordStep(pendingStep, 'cut', locBuf === '' ? '' : String(Number(locBuf)), comment);
   pendingStep = null;
   locOverlay.classList.remove('show');
-  if (navigator.vibrate) navigator.vibrate(40);
+  buzz(BUZZ.confirm);
   advanceOrFinish();
 }
 
@@ -706,8 +760,30 @@ modePlanned.addEventListener('click', () => {
 });
 modeRelative.addEventListener('click', () => {
   mode = 'relative'; modeRelative.classList.add('on'); modePlanned.classList.remove('on');
-  statusEl.textContent = 'Relative: zero the tape at the cut end, then measure the piece.';
+  zeroRef = currentMm;          // zero where the tape is right now
+  statusEl.textContent = 'Relative: zero anywhere, then pull to the piece length.';
+  buzz(BUZZ.ok);
   poke(); renderAll();
+});
+
+// Re-zero at the current blade position. The list keeps running - only
+// the reference the app measures from changes.
+zeroBtn.addEventListener('click', () => {
+  zeroRef = currentMm;
+  buzz(BUZZ.confirm);
+  statusEl.textContent = 'Zeroed at ' + Math.round(zeroRef) + ' mm tape reading.';
+  poke(); render();
+});
+
+hapticBadge.addEventListener('click', () => {
+  if (!('vibrate' in navigator)) {
+    statusEl.textContent = 'This device has no vibration hardware (desktop browser?).';
+    return;
+  }
+  haptics = !haptics;
+  refreshHapticBadge();
+  if (haptics) { navigator.vibrate(BUZZ.confirm); statusEl.textContent = 'Haptics on - that was a test buzz.'; }
+  else statusEl.textContent = 'Haptics off.';
 });
 
 /* ================= CSV ================= */
@@ -853,6 +929,7 @@ if ('serviceWorker' in navigator) {
 
 /* ================= boot ================= */
 verBadge.textContent = APP_VERSION;
+refreshHapticBadge();
 loadSession();
 buildDimSelect();
 setPowerStage(0);
