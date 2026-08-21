@@ -2,14 +2,14 @@
 // once stay available offline. Bump CACHE on every meaningful change so
 // old installs evict themselves.
 
-const CACHE = 'cutguide-v3';
+const CACHE = 'cutguide-v5';
 const ASSETS = [
   './',
   './index.html',
+  './cutdata.js',
   './manifest.webmanifest',
   './icon.svg',
-  './icon-maskable.svg',
-  './lists/index.json'
+  './icon-maskable.svg'
 ];
 
 self.addEventListener('install', event => {

@@ -14,148 +14,164 @@
   html, body { overscroll-behavior: none; }
   body {
     margin: 0; min-height: 100dvh;
-    padding: max(.6rem, env(safe-area-inset-top)) .7rem max(.6rem, env(safe-area-inset-bottom));
+    padding: max(.5rem, env(safe-area-inset-top)) .6rem max(.5rem, env(safe-area-inset-bottom));
     background: #14161a; color: #e8eaed;
     font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-    display: flex; flex-direction: column; align-items: center; gap: .5rem;
+    display: flex; flex-direction: column; align-items: center; gap: .45rem;
     user-select: none;
   }
-  .colhead {
-    font-size: .62rem; font-weight: 700; letter-spacing: .14em;
-    text-transform: uppercase; color: #55585e; text-align: center;
-  }
+  .colhead { font-size: .6rem; font-weight: 700; letter-spacing: .14em;
+             text-transform: uppercase; color: #55585e; text-align: center; }
 
-  #jobRow { width: 100%; display: flex; gap: .4rem; align-items: center; }
-  select {
-    flex: 1; font: inherit; font-size: .8rem; background: #1c1f24; color: #e8eaed;
-    border: 1px solid #2c3037; border-radius: .45rem; padding: .5rem;
-  }
+  #topRow { width: 100%; display: flex; gap: .35rem; }
+  select { flex: 1; font: inherit; font-size: .8rem; font-weight: 700;
+           background: #1c1f24; color: #e8eaed;
+           border: 1px solid #2c3037; border-radius: .45rem; padding: .5rem; }
+  .modeBtn { flex: 0 0 auto; padding: .5rem .7rem; font-size: .72rem; font-weight: 700;
+             border: 0; border-radius: .45rem; background: #24272c; color: #b6bac0; }
+  .modeBtn.on { background: #2f2410; color: #ffc400; }
 
-  #queue {
-    width: 100%; display: flex; flex-direction: column-reverse; gap: .22rem;
-    align-items: center; max-height: 6rem; overflow-y: auto;
-  }
-  .qitem {
-    width: 100%; display: flex; justify-content: space-between;
-    font-variant-numeric: tabular-nums;
-    background: #1c1f24; border: 1px solid #24272c; border-radius: .4rem;
-    padding: .28rem .6rem; color: #8b9098; font-size: .9rem; font-weight: 600;
-  }
-  .qitem.next { color: #e8eaed; border-color: #3d424a; background: #23272d; }
-  .qitem .id { font-size: .72rem; opacity: .7; }
+  #stockCard { width: 100%; border-radius: .7rem; padding: .55rem .7rem;
+               background: #1b2430; border: 1px solid #29384a;
+               display: flex; flex-direction: column; gap: .2rem; }
+  #stockCard.waste { background: #2a2416; border-color: #4a3f22; }
+  #stockTop { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; }
+  #stockLabel { font-size: .95rem; font-weight: 800; }
+  #stockMeta { font-size: .66rem; color: #8b9098; font-variant-numeric: tabular-nums; }
+  #stockProg { font-size: .6rem; color: #6f747b; letter-spacing: .08em; text-transform: uppercase; }
+  #loadWarn { display: none; margin-top: .25rem; padding: .45rem;
+              background: #3a2a10; border: 1px solid #6b4d15; border-radius: .45rem;
+              font-size: .76rem; font-weight: 700; color: #ffc400; text-align: center; }
+  #loadWarn.show { display: block; }
 
-  #stage { display: flex; align-items: center; justify-content: center; gap: .35rem; width: 100%; }
-  .arrow { flex: 0 0 auto; width: 2.2rem; height: 2.2rem; color: #ffc400; visibility: hidden; }
+  #queue { width: 100%; display: flex; flex-direction: column; gap: .16rem;
+           align-items: center; max-height: 5.2rem; overflow-y: auto; }
+  .qitem { width: 100%; display: flex; justify-content: space-between; gap: .4rem;
+           font-variant-numeric: tabular-nums; background: #1c1f24;
+           border: 1px solid #24272c; border-radius: .35rem;
+           padding: .22rem .5rem; color: #8b9098; font-size: .8rem; font-weight: 600; }
+  .qitem.next { color: #e8eaed; border-color: #ffc400; background: #23272d; }
+  .qitem.done { opacity: .4; }
+  .qitem.trim { color: #8a7a55; }
+  .qitem .id { font-size: .66rem; opacity: .75; min-width: 3.2rem; }
+  .qitem .abs { font-size: .72rem; color: #6f8cb0; }
+
+  #stage { display: flex; align-items: center; justify-content: center; gap: .3rem; width: 100%; }
+  .arrow { flex: 0 0 auto; width: 2rem; height: 2rem; color: #ffc400; visibility: hidden; }
   .arrow.show { visibility: visible; animation: nudge .9s ease-in-out infinite; }
   #arrowL.show { animation-name: nudgeL; }
   @keyframes nudge  { 0%,100% { transform: translateX(0); } 50% { transform: translateX(.3rem); } }
   @keyframes nudgeL { 0%,100% { transform: translateX(0); } 50% { transform: translateX(-.3rem); } }
 
-  #frame {
-    flex: 1 1 auto; border-radius: .9rem; padding: .85rem;
-    display: flex; flex-direction: column; gap: .55rem;
-    background: #55585e; transition: background-color .12s linear;
-  }
+  #frame { flex: 1 1 auto; border-radius: .85rem; padding: .7rem;
+           display: flex; flex-direction: column; gap: .45rem;
+           background: #55585e; transition: background-color .12s linear; }
   #frame.onTarget { animation: flash .2s steps(1) infinite; }
-  @keyframes flash {
-    0%, 49%   { background-color: #17c964; }
-    50%, 100% { background-color: #0a3d22; }
-  }
+  @keyframes flash { 0%,49% { background-color: #17c964; } 50%,100% { background-color: #0a3d22; } }
   /* No !important inside keyframes - the spec ignores it, killing the rule. */
   #frame.reject { animation: rejectFlash .2s steps(1) 3; }
-  @keyframes rejectFlash {
-    0%, 49%   { background-color: #ff3b30; }
-    50%, 100% { background-color: #2a0d0f; }
-  }
+  @keyframes rejectFlash { 0%,49% { background-color: #ff3b30; } 50%,100% { background-color: #2a0d0f; } }
   #frame.done { background: #24272c !important; animation: none; }
+  #frame.stub { background: #2c3a4d !important; animation: none; }
 
-  .label {
-    font-size: .64rem; font-weight: 700; letter-spacing: .1em;
-    text-transform: uppercase; color: #14161a; opacity: .75;
-    margin-bottom: .2rem; padding-left: .15rem;
-  }
-  .box {
-    background: #14161a; border-radius: .5rem; padding: .3rem .6rem;
-    display: flex; align-items: baseline; justify-content: center; gap: .3rem;
-    height: 4.3rem;
-  }
-  .num { font-variant-numeric: tabular-nums; font-size: 3rem; font-weight: 700;
+  .label { font-size: .58rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+           color: #14161a; opacity: .75; margin-bottom: .15rem; padding-left: .15rem; }
+  .box { background: #14161a; border-radius: .45rem; padding: .22rem .5rem;
+         display: flex; align-items: baseline; justify-content: center; gap: .3rem; height: 3.8rem; }
+  .num { font-variant-numeric: tabular-nums; font-size: 2.7rem; font-weight: 700;
          line-height: 1; letter-spacing: -.02em; }
   #targetNum { color: #e8eaed; }
   #currentNum { color: #ffc400; }
-  .unit { font-size: 1rem; font-weight: 600; color: #8b9098; }
+  .unit { font-size: .9rem; font-weight: 600; color: #8b9098; }
+  #pieceHint { font-size: .62rem; color: #14161a; opacity: .85; text-align: center;
+               font-weight: 800; letter-spacing: .05em; }
 
-  #done { width: 100%; display: flex; flex-direction: column; gap: .22rem;
-          max-height: 6rem; overflow-y: auto; }
-  .ditem {
-    display: flex; justify-content: space-between; align-items: baseline; gap: .5rem;
-    background: #16241b; border: 1px solid #1f3d2a; border-radius: .4rem;
-    padding: .28rem .6rem; font-variant-numeric: tabular-nums;
-  }
-  .ditem .v { color: #17c964; font-weight: 700; font-size: .9rem; }
-  .ditem .loc { color: #e8eaed; font-weight: 700; font-size: .9rem;
-                background: #1f3d2a; border-radius: .3rem; padding: 0 .4rem; }
-  .ditem .t { color: #5c7566; font-size: .7rem; margin-left: auto; }
-  .ditem.fresh { animation: pop .5s ease-out; }
-  @keyframes pop { 0% { transform: translateY(-1rem) scale(1.05); background: #1f5c38; }
-                   100% { transform: none; } }
+  #navRow { width: 100%; display: flex; gap: .28rem; }
+  #navRow button { font-size: .68rem; padding: .45rem .2rem; background: #24272c; color: #b6bac0;
+                   border: 0; border-radius: .42rem; flex: 1; font-weight: 700; }
+  #navRow button.warn { background: #33241a; color: #e8a15c; }
 
-  #panel { width: 100%; display: flex; flex-direction: column; gap: .45rem; margin-top: auto; }
-  .ctl { display: flex; align-items: center; gap: .4rem; font-size: .78rem; color: #8b9098; }
-  input[type=range] { flex: 1; accent-color: #ffc400; height: 1.9rem; }
-  output { min-width: 3.6rem; font-variant-numeric: tabular-nums; text-align: right; }
-  button {
-    font: inherit; font-size: .82rem; font-weight: 700; padding: .65rem .8rem;
-    border: 0; border-radius: .5rem; background: #ffc400; color: #14161a;
-    cursor: pointer; touch-action: manipulation; flex: 1;
-  }
+  #done { width: 100%; display: flex; flex-direction: column; gap: .16rem;
+          max-height: 5.5rem; overflow-y: auto; }
+  .ditem { display: flex; align-items: baseline; gap: .35rem;
+           background: #16241b; border: 1px solid #1f3d2a; border-radius: .35rem;
+           padding: .22rem .5rem; font-variant-numeric: tabular-nums; }
+  .ditem.skip { background: #241b16; border-color: #3d2a1f; }
+  .ditem .pid { font-size: .66rem; color: #7d9c88; min-width: 3rem; }
+  .ditem .v { color: #17c964; font-weight: 700; font-size: .82rem; }
+  .ditem.skip .v { color: #e8a15c; }
+  .ditem .loc { color: #e8eaed; font-weight: 700; font-size: .82rem;
+                background: #1f3d2a; border-radius: .28rem; padding: 0 .35rem; }
+  .ditem .t { color: #5c7566; font-size: .64rem; margin-left: auto; }
+
+  #panel { width: 100%; display: flex; flex-direction: column; gap: .32rem; margin-top: auto; }
+  .ctl { display: flex; align-items: center; gap: .35rem; font-size: .72rem; color: #8b9098; }
+  input[type=range] { flex: 1; accent-color: #ffc400; height: 1.8rem; }
+  output { min-width: 3.4rem; font-variant-numeric: tabular-nums; text-align: right; }
+  button.main { font: inherit; font-size: .8rem; font-weight: 700; padding: .58rem .6rem;
+                border: 0; border-radius: .45rem; background: #ffc400; color: #14161a; flex: 1; }
   button.ghost { background: #24272c; color: #b6bac0; }
-  #status { font-size: .72rem; color: #6f747b; text-align: center; min-height: 1.1em; }
-  #diffOut { font-size: .76rem; color: #6f747b; text-align: center; font-variant-numeric: tabular-nums; }
+  #status { font-size: .68rem; color: #6f747b; text-align: center; min-height: 1.1em; }
+  #diffOut { font-size: .72rem; color: #6f747b; text-align: center; font-variant-numeric: tabular-nums; }
   .simRow.hidden { display: none; }
-
-  #badges { display: flex; gap: .35rem; justify-content: center; flex-wrap: wrap; }
-  .badge { font-size: .58rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-           padding: .16rem .45rem; border-radius: 1rem; background: #24272c; color: #6f747b; }
+  #badges { display: flex; gap: .28rem; justify-content: center; flex-wrap: wrap; }
+  .badge { font-size: .54rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+           padding: .12rem .38rem; border-radius: 1rem; background: #24272c; color: #6f747b; }
   .badge.on { background: #2f2410; color: #ffc400; }
   #verBadge { background: #1a2230; color: #6f8cb0; }
+  #kerfBadge.warnKerf { background: #3a1a1a; color: #ff8a80; }
 
-  #locOverlay {
-    position: fixed; inset: 0; background: #0b0d10ee; z-index: 20;
-    display: none; flex-direction: column; align-items: center; justify-content: center;
-    gap: .8rem; padding: 1rem;
-  }
-  #locOverlay.show { display: flex; }
-  #locTitle { font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; color: #8b9098; }
-  #locCut { font-size: .95rem; color: #ffc400; font-weight: 700; font-variant-numeric: tabular-nums; }
-  #locValue {
-    font-size: 4.5rem; font-weight: 700; font-variant-numeric: tabular-nums;
-    color: #e8eaed; min-height: 5rem; line-height: 1.1; letter-spacing: .05em;
-  }
-  #pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; width: min(20rem, 100%); }
-  #pad button { font-size: 1.4rem; padding: .8rem 0; background: #23272d; color: #e8eaed; }
+  .overlay { position: fixed; inset: 0; background: #0b0d10f2; z-index: 20;
+             display: none; flex-direction: column; align-items: center; justify-content: center;
+             gap: .7rem; padding: 1rem; }
+  .overlay.show { display: flex; }
+  #locTitle { font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: #8b9098; }
+  #locCut { font-size: .88rem; color: #ffc400; font-weight: 700; font-variant-numeric: tabular-nums; }
+  #locValue { font-size: 3.8rem; font-weight: 700; font-variant-numeric: tabular-nums;
+              color: #e8eaed; min-height: 4.2rem; line-height: 1.1; letter-spacing: .05em; }
+  #pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: .42rem; width: min(20rem, 100%); }
+  #pad button { font-size: 1.25rem; padding: .7rem 0; background: #23272d; color: #e8eaed;
+                border: 0; border-radius: .42rem; font-weight: 700; }
   #pad button.ok { background: #17c964; color: #08210f; }
   #pad button.alt { background: #2f2410; color: #ffc400; }
-  #locNote { width: min(20rem, 100%); font: inherit; font-size: .9rem; padding: .6rem;
+  #locNote { width: min(20rem,100%); font: inherit; font-size: .85rem; padding: .5rem;
              background: #1c1f24; color: #e8eaed; border: 1px solid #2c3037;
              border-radius: .45rem; display: none; }
   #locNote.show { display: block; }
 
-  #veil {
-    position: fixed; inset: 0; background: #000; z-index: 15;
-    opacity: 0; pointer-events: none; transition: opacity .6s linear;
-  }
+  #loadTitle { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: #8b9098; }
+  #loadPipe { font-size: 1.8rem; font-weight: 800; text-align: center; color: #ffc400; }
+  #loadDetail { font-size: .85rem; color: #b6bac0; text-align: center; font-variant-numeric: tabular-nums; }
+  #loadFirst { font-size: .8rem; color: #8b9098; text-align: center; }
+  #loadOverlay .row { display: flex; gap: .5rem; width: min(22rem,100%); }
+  #loadOverlay button { flex: 1; font-size: .88rem; font-weight: 700; padding: .75rem;
+                        border: 0; border-radius: .5rem; }
+  #loadOk { background: #17c964; color: #08210f; }
+  #loadSkipBtn { background: #33241a; color: #e8a15c; }
+
+  #veil { position: fixed; inset: 0; background: #000; z-index: 15;
+          opacity: 0; pointer-events: none; transition: opacity .6s linear; }
   #veil.pointer { pointer-events: auto; }
 </style>
 </head>
 <body>
 
-  <div id="jobRow">
-    <select id="jobSel"><option>Loading lists...</option></select>
-    <button id="reload" class="ghost" style="flex:0 0 auto">&#8635;</button>
+  <div id="topRow">
+    <select id="dimSel"></select>
+    <button class="modeBtn on" id="modePlanned">Planned</button>
+    <button class="modeBtn" id="modeRelative">Relative</button>
   </div>
 
-  <div class="colhead">Cut list &mdash; next at bottom</div>
+  <div id="stockCard">
+    <div id="stockTop">
+      <span id="stockLabel">--</span>
+      <span id="stockMeta"></span>
+    </div>
+    <div id="stockProg"></div>
+    <div id="loadWarn">Load this pipe, then press Loaded</div>
+  </div>
+
+  <div class="colhead">Cutting order &mdash; top to bottom</div>
   <div id="queue"></div>
 
   <div id="stage">
@@ -165,13 +181,14 @@
     </svg>
     <div id="frame">
       <div>
-        <div class="label">Cut pipe at length:</div>
+        <div class="label" id="targetLabel">Cut at tape reading:</div>
         <div class="box"><span class="num" id="targetNum">--</span><span class="unit">mm</span></div>
       </div>
       <div>
         <div class="label">You are at:</div>
         <div class="box"><span class="num" id="currentNum">0</span><span class="unit">mm</span></div>
       </div>
+      <div id="pieceHint"></div>
     </div>
     <svg id="arrowR" class="arrow" viewBox="0 0 24 24" fill="none"
          stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -180,30 +197,50 @@
   </div>
 
   <div id="diffOut"></div>
+
+  <div id="navRow">
+    <button id="prevStep">&#8592; Prev</button>
+    <button id="nextStep">Next &#8594;</button>
+    <button id="skipStep" class="warn">Skip piece</button>
+    <button id="skipStockBtn" class="warn">Skip pipe</button>
+  </div>
+
   <div id="badges">
-    <span class="badge" id="verBadge">v?</span>
-    <span class="badge" id="wakeBadge">screen lock off</span>
+    <span class="badge" id="verBadge">v5</span>
+    <span class="badge" id="kerfBadge">kerf 0</span>
+    <span class="badge" id="wakeBadge">screen off</span>
     <span class="badge" id="linkBadge">no tape</span>
     <span class="badge" id="powerBadge">active</span>
   </div>
 
-  <div class="colhead">Confirmed cuts</div>
+  <div class="colhead">Cut log</div>
   <div id="done"></div>
 
   <div id="panel">
     <div class="ctl simRow" id="simRow">
-      <input type="range" id="sim" min="0" max="400" step="1" value="0">
+      <input type="range" id="sim" min="0" max="6100" step="1" value="0">
       <output id="simOut">0 mm</output>
     </div>
     <div class="ctl">
-      <button id="save">Save</button>
-      <button id="export" class="ghost">CSV</button>
-      <button id="connect" class="ghost">Connect</button>
+      <button class="main" id="save">Save</button>
+      <button class="main ghost" id="export">CSV</button>
+      <button class="main ghost" id="connect">Connect</button>
     </div>
-    <div id="status">Pick a job, then connect.</div>
+    <div id="status">Pick a dimension to begin.</div>
   </div>
 
-  <div id="locOverlay">
+  <div class="overlay" id="loadOverlay">
+    <div id="loadTitle">Load this pipe</div>
+    <div id="loadPipe">--</div>
+    <div id="loadDetail"></div>
+    <div id="loadFirst"></div>
+    <div class="row">
+      <button id="loadOk">Loaded</button>
+      <button id="loadSkipBtn">Skip this pipe</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="locOverlay">
     <div id="locTitle">Stored at position</div>
     <div id="locCut"></div>
     <div id="locValue">--</div>
@@ -221,11 +258,16 @@
 
   <div id="veil"></div>
 
+<script src="./cutdata.js"></script>
 <script>
-// Bump this on every deploy so the running build is visible on screen.
-const APP_VERSION = 'v3 2026-08-20';
+/* ================= tuning ================= */
+// Saw kerf in mm. The nesting list contains NO kerf allowance, so leaving
+// this at 0 reproduces the list exactly. Raise it once measured - every
+// cut after the first then shifts down by one kerf so piece lengths stay
+// correct. Watch the kerf badge: it turns red if a bar can no longer fit.
+let KERF = 0;
 
-// UUIDs from REEKON BLE Connection Guide and SDK, Rev 1.4
+const APP_VERSION = 'v5';
 const POSITION_SERVICE = '7ad09b02-1f68-4c68-922f-a063dfdb7912';
 const LIVE_MEASUREMENT = '0d689f63-fdf9-4f0f-8522-736d4723ad2f';
 const SYNC_SERVICE     = '43744f76-de4d-4b05-a14a-0c133a785d8e';
@@ -235,111 +277,267 @@ const OPCODE_MEASUREMENT = 4;
 
 const RED_AT = 100, GREEN_AT = 1, ON_TARGET_TOL = 0.5;
 const DEADBAND_UM = 200;
-
-// Power saving stages, seconds of inactivity
 const DIM_AFTER = 45, DEEP_AFTER = 180, RELEASE_AFTER = 420;
 const IDLE_HZ = 2, ACTIVE_HZ = 8;
 
 const $ = id => document.getElementById(id);
 const frameEl=$('frame'), arrowL=$('arrowL'), arrowR=$('arrowR');
-const targetNum=$('targetNum'), currentNum=$('currentNum');
-const queueEl=$('queue'), doneEl=$('done');
+const targetNum=$('targetNum'), currentNum=$('currentNum'), targetLabel=$('targetLabel');
+const queueEl=$('queue'), doneEl=$('done'), pieceHint=$('pieceHint');
 const sim=$('sim'), simOut=$('simOut'), simRow=$('simRow');
 const btn=$('connect'), saveBtn=$('save'), exportBtn=$('export');
 const statusEl=$('status'), diffOut=$('diffOut');
-const wakeBadge=$('wakeBadge'), linkBadge=$('linkBadge'), powerBadge=$('powerBadge'), verBadge=$('verBadge');
-const jobSel=$('jobSel'), reloadBtn=$('reload');
+const wakeBadge=$('wakeBadge'), linkBadge=$('linkBadge'), powerBadge=$('powerBadge');
+const verBadge=$('verBadge'), kerfBadge=$('kerfBadge');
+const dimSel=$('dimSel'), stockCard=$('stockCard'), stockLabel=$('stockLabel');
+const stockMeta=$('stockMeta'), stockProg=$('stockProg'), loadWarn=$('loadWarn');
+const loadOverlay=$('loadOverlay'), loadPipe=$('loadPipe'), loadDetail=$('loadDetail'), loadFirst=$('loadFirst');
+const loadOk=$('loadOk'), loadSkipBtn=$('loadSkipBtn');
 const locOverlay=$('locOverlay'), locValue=$('locValue'), locCut=$('locCut'), locNote=$('locNote');
 const veil=$('veil');
+const modePlanned=$('modePlanned'), modeRelative=$('modeRelative');
+const prevStep=$('prevStep'), nextStep=$('nextStep'), skipStep=$('skipStep'), skipStockBtn=$('skipStockBtn');
 
-verBadge.textContent = APP_VERSION;
+/* ================= state =================
+   DATA is never mutated. Progress lives only in `session`, which is
+   append-only and keyed by dimension|stock|piece, so navigating,
+   skipping or switching dimension can never lose a stored position. */
+let session = { log: [], doneKeys: {} };
+let dim = null, stockIdx = 0, stepIdx = 0;
+let mode = 'planned', stockLoaded = false;
+let seqCache = null;
 
 let device=null, liveChar=null, commChar=null;
 let pollTimer=null, running=false, rejecting=false;
-let currentMm=0, queue=[], confirmed=[], jobName='', jobId='';
-let lastActivity=Date.now(), lastUm=null, powerStage=0;
-let pendingCut=null, locBuf='';
+let currentMm=0, lastUm=null;
+let lastActivity=Date.now(), powerStage=0;
+let pendingStep=null, locBuf='';
 
-/* ================= cut lists from git ================= */
-async function loadIndex() {
-  try {
-    const res = await fetch('./lists/index.json', { cache: 'no-cache' });
-    const data = await res.json();
-    jobSel.innerHTML = '';
-    data.lists.forEach(l => {
-      const o = document.createElement('option');
-      o.value = l.file; o.textContent = l.name;
-      jobSel.appendChild(o);
-    });
-    if (data.lists.length) loadJob(data.lists[0].file);
-  } catch (e) {
-    jobSel.innerHTML = '<option>No lists found</option>';
-    statusEl.textContent = 'Could not load lists/index.json';
-  }
+const STORE_KEY = 'kj-cutguide-session-v5';
+function saveSession() { try { localStorage.setItem(STORE_KEY, JSON.stringify(session)); } catch(e){} }
+function loadSession() {
+  try { const r = localStorage.getItem(STORE_KEY); if (r) session = JSON.parse(r); } catch(e){}
 }
 
-async function loadJob(file) {
-  try {
-    const res = await fetch('./lists/' + file, { cache: 'no-cache' });
-    const data = await res.json();
-    jobName = data.name || file;
-    jobId   = data.job || '';
-    // last element is the active target, so reverse the file order
-    queue = data.cuts.slice().reverse().map(c => ({ id: c.id, mm: c.mm, note: c.note || '' }));
-    confirmed = [];
-    renderLists(); render();
-    statusEl.textContent = jobName + ' \u2014 ' + queue.length + ' cuts.';
-  } catch (e) {
-    statusEl.textContent = 'Could not load ' + file;
+/* ================= cutting sequence =================
+   Pieces lie left to right in list order, packed from the fixed left
+   end, with the offcut waste at the far right. The tape is zeroed at
+   that same fixed left end, and cutting runs right to left. So:
+
+     step 0        trim off the waste tail at (sum of all pieces)
+     steps 1..n-1  cut at each piece boundary, descending
+     final step    the leftmost piece is already free - no cut, but it
+                   still needs a storage position
+
+   Each completed cut consumes one kerf, so every later position is
+   shifted down by the number of cuts already made.                    */
+function buildSequence(s) {
+  const total = s.pieces.reduce((a, p) => a + p.mm, 0);
+  const waste = s.length - total;
+  const steps = [];
+  let cutNo = 0;
+
+  if (waste > 0) {
+    steps.push({ type: 'trim', pos: total, waste: waste,
+                 key: s.id + '|TRIM', label: 'Trim tail' });
+    cutNo++;
   }
+
+  // left boundary of piece k = sum of pieces before it
+  const bounds = [];
+  let acc = 0;
+  s.pieces.forEach(p => { bounds.push(acc); acc += p.mm; });
+
+  for (let k = s.pieces.length - 1; k >= 1; k--) {
+    steps.push({ type: 'cut',
+                 pos: bounds[k] - cutNo * KERF,
+                 piece: s.pieces[k],
+                 key: s.id + '|' + s.pieces[k].id });
+    cutNo++;
+  }
+
+  steps.push({ type: 'stub', pos: null, piece: s.pieces[0],
+               key: s.id + '|' + s.pieces[0].id });
+
+  return { steps: steps, total: total, waste: waste, cuts: cutNo };
 }
 
-jobSel.addEventListener('change', () => loadJob(jobSel.value));
-reloadBtn.addEventListener('click', () => { loadIndex(); poke(); });
+function stocks() { return dim ? DATA[dim] : []; }
+function stock()  { return stocks()[stockIdx] || null; }
+function seq()    { if (!seqCache) seqCache = buildSequence(stock()); return seqCache; }
+function steps()  { return stock() ? seq().steps : []; }
+function step()   { return steps()[stepIdx] || null; }
+function fullKey(st) { return dim + '|' + st.key; }
+function isDone(st)  { return !!session.doneKeys[fullKey(st)]; }
+
+function targetFor(st) {
+  if (!st) return null;
+  if (st.type === 'stub') return null;
+  if (mode === 'relative') return st.type === 'trim' ? null : st.piece.mm;
+  return Math.round(st.pos);
+}
+
+/* ================= navigation ================= */
+function buildDimSelect() {
+  dimSel.innerHTML = '';
+  Object.keys(DATA).forEach(name => {
+    const o = document.createElement('option');
+    o.value = name; o.textContent = name;
+    dimSel.appendChild(o);
+  });
+}
+
+function setDim(name) {
+  dim = name; stockIdx = 0; stepIdx = 0; seqCache = null; stockLoaded = false;
+  advanceToNextUndone();
+  renderAll();
+  if (mode === 'planned') openLoadGate();
+}
+
+function advanceToNextUndone() {
+  const list = stocks();
+  for (let s = stockIdx; s < list.length; s++) {
+    const sq = buildSequence(list[s]);
+    for (let i = (s === stockIdx ? stepIdx : 0); i < sq.steps.length; i++) {
+      if (!session.doneKeys[dim + '|' + sq.steps[i].key]) {
+        if (s !== stockIdx) { stockIdx = s; seqCache = null; stockLoaded = false; }
+        stepIdx = i;
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function gotoStock(i) {
+  if (i < 0 || i >= stocks().length) return;
+  stockIdx = i; stepIdx = 0; seqCache = null; stockLoaded = false;
+  renderAll();
+  if (mode === 'planned') openLoadGate();
+}
+
+/* ================= load gate ================= */
+function openLoadGate() {
+  const s = stock();
+  if (!s) { loadOverlay.classList.remove('show'); return; }
+  const sq = seq();
+  loadPipe.textContent = s.label;
+  loadDetail.textContent = dim + '  \u00b7  ' + s.length + ' mm  \u00b7  '
+                         + s.pieces.length + ' pieces  \u00b7  ' + sq.cuts + ' cuts';
+  loadFirst.textContent = 'First cut at ' + Math.round(sq.steps[0].pos) + ' mm'
+                        + (sq.waste > 0 ? '  (trims ' + sq.waste + ' mm tail)' : '');
+  loadOverlay.classList.add('show');
+  if (navigator.vibrate) navigator.vibrate(60);
+}
+loadOk.addEventListener('click', () => {
+  stockLoaded = true; loadOverlay.classList.remove('show'); renderAll();
+});
+loadSkipBtn.addEventListener('click', () => {
+  logSkipStock();
+  loadOverlay.classList.remove('show');
+  if (stockIdx < stocks().length - 1) gotoStock(stockIdx + 1);
+  else { statusEl.textContent = 'No more pipes on this dimension.'; renderAll(); }
+});
 
 /* ================= rendering ================= */
-function renderLists() {
+function renderStockCard() {
+  const s = stock();
+  if (!s) {
+    stockLabel.textContent = 'No pipe'; stockMeta.textContent = ''; stockProg.textContent = '';
+    loadWarn.classList.remove('show'); return;
+  }
+  const sq = seq();
+  stockLabel.textContent = s.label;
+  stockMeta.textContent = s.length + ' mm';
+  stockCard.classList.toggle('waste', s.kind === 'waste');
+  const left = sq.steps.filter(st => !isDone(st)).length;
+  stockProg.textContent = 'Pipe ' + (stockIdx + 1) + ' of ' + stocks().length
+                        + '  \u00b7  ' + (s.kind === 'waste' ? 'offcut' : 'new stock')
+                        + '  \u00b7  ' + left + ' steps left';
+  loadWarn.classList.toggle('show', mode === 'planned' && !stockLoaded);
+
+  // Kerf sanity: does the bar still fit once every cut eats a kerf?
+  const needed = sq.total + sq.cuts * KERF;
+  kerfBadge.textContent = 'kerf ' + KERF;
+  kerfBadge.classList.toggle('warnKerf', needed > s.length);
+}
+
+function renderQueue() {
   queueEl.innerHTML = '';
-  queue.forEach((c, i) => {
+  steps().forEach((st, i) => {
     const d = document.createElement('div');
-    d.className = 'qitem' + (i === queue.length - 1 ? ' next' : '');
-    d.innerHTML = '<span class="id">' + c.id + '</span><span>' + c.mm + ' mm</span>';
+    d.className = 'qitem' + (i === stepIdx ? ' next' : '')
+                + (isDone(st) ? ' done' : '') + (st.type === 'trim' ? ' trim' : '');
+    if (st.type === 'trim') {
+      d.innerHTML = '<span class="id">trim</span><span>' + st.waste + ' mm waste</span>'
+                  + '<span class="abs">@ ' + Math.round(st.pos) + '</span>';
+    } else if (st.type === 'stub') {
+      d.innerHTML = '<span class="id">' + st.piece.id + '</span><span>' + st.piece.mm + ' mm</span>'
+                  + '<span class="abs">stub</span>';
+    } else {
+      d.innerHTML = '<span class="id">' + st.piece.id + '</span><span>' + st.piece.mm + ' mm</span>'
+                  + '<span class="abs">@ ' + Math.round(st.pos) + '</span>';
+    }
     queueEl.appendChild(d);
   });
+  const active = queueEl.children[stepIdx];
+  if (active) active.scrollIntoView({ block: 'nearest' });
+}
+
+function renderLog() {
   doneEl.innerHTML = '';
-  confirmed.forEach((c, i) => {
+  session.log.slice().reverse().slice(0, 40).forEach(r => {
     const d = document.createElement('div');
-    d.className = 'ditem' + (i === 0 ? ' fresh' : '');
-    const loc = c.comment ? '&hellip;' : c.location;
-    d.innerHTML = '<span class="v">' + c.mm + ' mm</span>'
+    d.className = 'ditem' + (r.status !== 'cut' ? ' skip' : '');
+    const loc = r.status !== 'cut' ? r.status : (r.comment ? '\u2026' : r.location);
+    d.innerHTML = '<span class="pid">' + (r.pieceId || '') + '</span>'
+                + '<span class="v">' + (r.mm != null ? r.mm + ' mm' : '') + '</span>'
                 + '<span class="loc">' + loc + '</span>'
-                + '<span class="t">' + c.time + '</span>';
-    d.title = c.comment || '';
+                + '<span class="t">' + r.time + '</span>';
+    d.title = (r.dim || '') + ' ' + (r.stockLabel || '') + ' ' + (r.comment || '');
     doneEl.appendChild(d);
   });
 }
 
-function onTarget() {
-  if (!queue.length) return false;
-  return Math.abs(Math.round(currentMm) - queue[queue.length - 1].mm) <= ON_TARGET_TOL;
-}
-
 function render() {
-  const target = queue.length ? queue[queue.length - 1].mm : null;
+  const st = step();
   const shownCurrent = Math.round(currentMm);
   currentNum.textContent = shownCurrent;
   simOut.textContent = Math.round(Number(sim.value)) + ' mm';
+  targetLabel.textContent = mode === 'planned' ? 'Cut at tape reading:' : 'Piece length:';
 
-  if (target === null) {
+  frameEl.classList.remove('stub');
+
+  if (!st) {
     targetNum.textContent = '--';
-    frameEl.classList.remove('onTarget');
-    frameEl.classList.add('done');
+    frameEl.classList.remove('onTarget'); frameEl.classList.add('done');
     arrowL.classList.remove('show'); arrowR.classList.remove('show');
-    diffOut.textContent = '';
+    diffOut.textContent = ''; pieceHint.textContent = 'Dimension complete';
     return;
   }
+
+  // The leftmost piece needs no cut - it only needs a storage position.
+  if (st.type === 'stub' || (mode === 'relative' && st.type === 'trim')) {
+    targetNum.textContent = '--';
+    frameEl.classList.remove('onTarget', 'done');
+    frameEl.classList.add('stub');
+    frameEl.style.backgroundColor = '';
+    arrowL.classList.remove('show'); arrowR.classList.remove('show');
+    diffOut.textContent = '';
+    pieceHint.textContent = st.type === 'stub'
+      ? st.piece.id + '  \u00b7  ' + st.piece.mm + ' mm  \u00b7  NO CUT - already free, just store it'
+      : 'Trim step - skip in relative mode';
+    return;
+  }
+
   frameEl.classList.remove('done');
+  const target = targetFor(st);
   targetNum.textContent = target;
+  pieceHint.textContent = st.type === 'trim'
+    ? 'TRIM TAIL  \u00b7  ' + st.waste + ' mm waste'
+    : (mode === 'planned'
+        ? st.piece.id + '  \u2192  piece ' + st.piece.mm + ' mm'
+        : st.piece.id + '  \u2192  zero the tape at the cut end');
 
   const diff = shownCurrent - target, err = Math.abs(diff);
   if (err <= ON_TARGET_TOL) {
@@ -356,17 +554,36 @@ function render() {
   }
 }
 
+function renderAll() { renderStockCard(); renderQueue(); renderLog(); render(); }
+
 function errorColor(err) {
   const c = Math.min(Math.max(err, GREEN_AT), RED_AT);
   const t = (RED_AT - c) / (RED_AT - GREEN_AT);
   return 'hsl(' + (120 * Math.pow(t, 1.6)).toFixed(1) + ', 72%, 44%)';
 }
 
-/* ================= save / reject / storage prompt ================= */
+/* ================= save ================= */
 function attemptSave() {
-  if (!queue.length || pendingCut) return;
-  if (!onTarget()) { rejectSave(); return; }
-  pendingCut = queue[queue.length - 1];
+  const st = step();
+  if (!st || pendingStep) return;
+  if (mode === 'planned' && !stockLoaded) { openLoadGate(); return; }
+
+  // Waste tail: nothing to store, log it and move on.
+  if (st.type === 'trim') {
+    if (mode === 'relative') { advanceOrFinish(); return; }
+    const target = targetFor(st);
+    if (Math.abs(Math.round(currentMm) - target) > ON_TARGET_TOL) { rejectSave(); return; }
+    recordStep(st, 'trim', '', '');
+    advanceOrFinish();
+    return;
+  }
+
+  // Stub needs no cut, only a storage position.
+  if (st.type === 'stub') { pendingStep = st; openLocPrompt(); return; }
+
+  const target = targetFor(st);
+  if (Math.abs(Math.round(currentMm) - target) > ON_TARGET_TOL) { rejectSave(); return; }
+  pendingStep = st;
   openLocPrompt();
 }
 
@@ -379,17 +596,15 @@ function rejectSave() {
   statusEl.textContent = 'Rejected \u2014 not on target.';
 }
 frameEl.addEventListener('animationend', e => {
-  if (e.animationName === 'rejectFlash') {
-    frameEl.classList.remove('reject'); rejecting = false; render();
-  }
+  if (e.animationName === 'rejectFlash') { frameEl.classList.remove('reject'); rejecting = false; render(); }
 });
 
 function openLocPrompt() {
-  locBuf = '';
-  locNote.value = '';
+  locBuf = ''; locNote.value = '';
   locNote.classList.remove('show');
   locValue.textContent = '--';
-  locCut.textContent = pendingCut.id + '  \u00b7  ' + pendingCut.mm + ' mm';
+  locCut.textContent = pendingStep.piece.id + '  \u00b7  ' + pendingStep.piece.mm
+                     + ' mm  \u00b7  ' + dim;
   locOverlay.classList.add('show');
   if (navigator.vibrate) navigator.vibrate(40);
 }
@@ -398,89 +613,143 @@ $('pad').addEventListener('click', e => {
   const k = e.target.dataset.k;
   if (!k) return;
   poke();
-  if (k === 'del') {
-    locBuf = locBuf.slice(0, -1);
-  } else if (k === 'note') {
+  if (k === 'del') locBuf = locBuf.slice(0, -1);
+  else if (k === 'note') {
     locNote.classList.toggle('show');
     if (locNote.classList.contains('show')) locNote.focus();
-  } else if (k === 'ok') {
-    commitCut();
-    return;
-  } else {
-    if (locBuf.length < 2) locBuf += k;      // 0-99
   }
+  else if (k === 'ok') { commitStep(); return; }
+  else if (locBuf.length < 2) locBuf += k;      // 0-99
   locValue.textContent = locBuf === '' ? '--' : locBuf;
 });
 
-function commitCut() {
-  const comment = locNote.classList.contains('show') ? locNote.value.trim() : '';
-  if (locBuf === '' && !comment) {
-    if (navigator.vibrate) navigator.vibrate([60, 60]);
-    return;                                   // need a position or a comment
-  }
-  queue.pop();
-  confirmed.unshift({
-    id: pendingCut.id,
-    mm: pendingCut.mm,
-    location: locBuf === '' ? '' : String(Number(locBuf)),
-    comment: comment,
+function recordStep(st, status, location, comment) {
+  const s = stock();
+  const rec = {
+    status: status,
+    dim: dim,
+    stockId: s.id, stockLabel: s.label, stockKind: s.kind, stockLength: s.length,
+    pieceId: st.piece ? st.piece.id : 'TRIM',
+    mm: st.piece ? st.piece.mm : st.waste,
+    tapeReading: st.pos != null ? Math.round(st.pos) : '',
+    stepType: st.type,
+    mode: mode,
+    location: location, comment: comment,
     time: new Date().toTimeString().slice(0, 8),
     iso: new Date().toISOString()
-  });
-  pendingCut = null;
-  locOverlay.classList.remove('show');
-  if (navigator.vibrate) navigator.vibrate(40);
-  renderLists(); render();
-  if (!queue.length) statusEl.textContent = 'List complete \u2014 ' + confirmed.length + ' cuts. Export CSV.';
+  };
+  session.log.push(rec);
+  session.doneKeys[fullKey(st)] = rec;
+  saveSession();
 }
 
-/* ================= CSV export ================= */
-exportBtn.addEventListener('click', () => {
-  if (!confirmed.length) { statusEl.textContent = 'Nothing to export yet.'; return; }
-  const rows = [['job', 'id', 'length_mm', 'position', 'comment', 'timestamp']];
-  confirmed.slice().reverse().forEach(c => {
-    rows.push([jobId, c.id, c.mm, c.location, c.comment.replace(/"/g, '""'), c.iso]);
+function commitStep() {
+  const comment = locNote.classList.contains('show') ? locNote.value.trim() : '';
+  if (locBuf === '' && !comment) { if (navigator.vibrate) navigator.vibrate([60,60]); return; }
+  recordStep(pendingStep, 'cut', locBuf === '' ? '' : String(Number(locBuf)), comment);
+  pendingStep = null;
+  locOverlay.classList.remove('show');
+  if (navigator.vibrate) navigator.vibrate(40);
+  advanceOrFinish();
+}
+
+function advanceOrFinish() {
+  const wasLast = steps().every(st => isDone(st));
+  if (wasLast) {
+    if (stockIdx < stocks().length - 1) { gotoStock(stockIdx + 1); return; }
+    statusEl.textContent = 'All pipes done on ' + dim + '.';
+    renderAll(); return;
+  }
+  if (!advanceToNextUndone()) statusEl.textContent = 'Nothing left on ' + dim + '.';
+  renderAll();
+}
+
+/* ================= skipping ================= */
+function logSkipStep() {
+  const st = step(); if (!st) return;
+  recordStep(st, 'skipped', '', '');
+  advanceOrFinish();
+}
+
+function logSkipStock() {
+  const s = stock(); if (!s) return;
+  const sq = seq();
+  sq.steps.forEach(st => {
+    if (session.doneKeys[dim + '|' + st.key]) return;
+    recordStep(st, 'skipped', '', 'pipe skipped');
   });
-  const csv = rows.map(r => r.map(v => '"' + v + '"').join(';')).join('\r\n');
+}
+
+prevStep.addEventListener('click', () => {
+  poke();
+  if (stepIdx > 0) stepIdx--;
+  else if (stockIdx > 0) { stockIdx--; seqCache = null; stockLoaded = false; stepIdx = steps().length - 1; }
+  renderAll();
+});
+nextStep.addEventListener('click', () => {
+  poke();
+  if (stepIdx < steps().length - 1) stepIdx++;
+  else if (stockIdx < stocks().length - 1) gotoStock(stockIdx + 1);
+  renderAll();
+});
+skipStep.addEventListener('click', () => { poke(); logSkipStep(); });
+skipStockBtn.addEventListener('click', () => {
+  poke(); logSkipStock();
+  if (stockIdx < stocks().length - 1) gotoStock(stockIdx + 1);
+  else { statusEl.textContent = 'Last pipe on this dimension.'; renderAll(); }
+});
+
+dimSel.addEventListener('change', () => { poke(); setDim(dimSel.value); });
+modePlanned.addEventListener('click', () => {
+  mode = 'planned'; modePlanned.classList.add('on'); modeRelative.classList.remove('on');
+  poke(); renderAll();
+});
+modeRelative.addEventListener('click', () => {
+  mode = 'relative'; modeRelative.classList.add('on'); modePlanned.classList.remove('on');
+  statusEl.textContent = 'Relative: zero the tape at the cut end, then measure the piece.';
+  poke(); renderAll();
+});
+
+/* ================= CSV ================= */
+exportBtn.addEventListener('click', () => {
+  if (!session.log.length) { statusEl.textContent = 'Nothing to export yet.'; return; }
+  const rows = [['dimension','stock_id','stock_label','stock_kind','stock_length_mm',
+                 'piece_id','piece_mm','tape_reading_mm','step_type','mode',
+                 'status','position','comment','timestamp']];
+  session.log.forEach(r => {
+    rows.push([r.dim, r.stockId, r.stockLabel, r.stockKind, r.stockLength,
+               r.pieceId, r.mm, r.tapeReading, r.stepType, r.mode,
+               r.status, r.location, (r.comment||'').replace(/"/g,'""'), r.iso]);
+  });
+  const csv = rows.map(r => r.map(v => '"' + (v == null ? '' : v) + '"').join(';')).join('\r\n');
   // UTF-8 BOM so Excel reads the Swedish characters correctly
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'cuts-' + (jobId || 'job') + '-' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.download = 'cuts-' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
   URL.revokeObjectURL(a.href);
+  statusEl.textContent = 'Exported ' + session.log.length + ' rows.';
 });
 
-/* ================= power management ================= */
+/* ================= power ================= */
 let wakeLock = null;
-
 async function acquireWakeLock() {
-  if (!('wakeLock' in navigator)) { wakeBadge.textContent = 'no wake lock api'; return; }
+  if (!('wakeLock' in navigator)) { wakeBadge.textContent = 'no wake api'; return; }
   try {
     wakeLock = await navigator.wakeLock.request('screen');
-    wakeBadge.textContent = 'screen stays on';
-    wakeBadge.classList.add('on');
+    wakeBadge.textContent = 'screen on'; wakeBadge.classList.add('on');
     wakeLock.addEventListener('release', () => {
-      wakeBadge.textContent = 'screen lock off';
-      wakeBadge.classList.remove('on');
+      wakeBadge.textContent = 'screen off'; wakeBadge.classList.remove('on');
     });
-  } catch (e) {
-    wakeBadge.textContent = 'wake lock refused';
-  }
+  } catch (e) { wakeBadge.textContent = 'wake refused'; }
 }
-function releaseWakeLock() {
-  if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
-}
+function releaseWakeLock() { if (wakeLock) { wakeLock.release().catch(()=>{}); wakeLock = null; } }
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && running) acquireWakeLock();
 });
-
-function poke() {
-  lastActivity = Date.now();
-  if (powerStage !== 0) setPowerStage(0);
-}
-['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, poke, true));
-
+function poke() { lastActivity = Date.now(); if (powerStage !== 0) setPowerStage(0); }
+['pointerdown','keydown'].forEach(ev => document.addEventListener(ev, poke, true));
 function setPowerStage(stage) {
   powerStage = stage;
   if (stage === 0) {
@@ -500,7 +769,6 @@ function setPowerStage(stage) {
   }
 }
 veil.addEventListener('pointerdown', e => { e.stopPropagation(); poke(); }, true);
-
 setInterval(() => {
   const idle = (Date.now() - lastActivity) / 1000;
   let want = 0;
@@ -523,17 +791,14 @@ btn.addEventListener('click', async () => {
     });
     device.addEventListener('gattserverdisconnected', onDisconnect);
     const server = await device.gatt.connect();
-
     const pos = await server.getPrimaryService(POSITION_SERVICE);
     liveChar = await pos.getCharacteristic(LIVE_MEASUREMENT);
-
     try {
       const sync = await server.getPrimaryService(SYNC_SERVICE);
       commChar = await sync.getCharacteristic(SYNC_COMM);
       await commChar.startNotifications();
       commChar.addEventListener('characteristicvaluechanged', onSyncNotify);
     } catch (e) { commChar = null; }
-
     btn.textContent = 'Disconnect';
     simRow.classList.add('hidden');
     linkBadge.textContent = 'tape linked'; linkBadge.classList.add('on');
@@ -583,11 +848,15 @@ sim.addEventListener('input', () => { poke(); if (!running) { currentMm = Number
 saveBtn.addEventListener('click', () => { poke(); attemptSave(); });
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
 
+/* ================= boot ================= */
+verBadge.textContent = APP_VERSION;
+loadSession();
+buildDimSelect();
 setPowerStage(0);
-loadIndex();
+setDim(Object.keys(DATA)[0]);
 </script>
 </body>
 </html>
