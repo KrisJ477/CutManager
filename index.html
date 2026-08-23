@@ -337,6 +337,35 @@ const IDLE_HZ = 2, ACTIVE_HZ = 8;
 
 const $ = id => document.getElementById(id);
 
+/* All element handles up front. Two reasons this matters:
+   - `const` is in a temporal dead zone until its declaration runs, so a
+     handle declared at the bottom cannot be used by code above it.
+   - Bare globals like `status` collide with built-ins: window.status is a
+     legacy STRING, so status.textContent silently does nothing. A
+     top-level const shadows it properly. */
+const frameEl=$('frame'), statusLine=$('status');
+const dimSel=$('dimSel'), modeChip=$('modeChip');
+const pipeBar=$('pipeBar'), pipeName=$('pipeName'), pipeSub=$('pipeSub');
+const arrowL=$('arrowL'), arrowR=$('arrowR');
+const targetNum=$('targetNum'), currentNum=$('currentNum'), targetLabel=$('targetLabel');
+const hintEl=$('hint'), diffOut=$('diffOut');
+const stripEl=$('strip'), stepCount=$('stepCount');
+const prevBtn=$('prevBtn'), nextBtn=$('nextBtn'), skipBtn=$('skipBtn');
+const saveBtn=$('saveBtn'), zeroBtn=$('zeroBtn');
+const menuBtn=$('menuBtn'), menuVeil=$('menuVeil'), menuClose=$('menuClose');
+const gateVeil=$('gateVeil'), gatePipe=$('gatePipe'), gateInfo=$('gateInfo');
+const gateOk=$('gateOk'), gateSkip=$('gateSkip');
+const posVeil=$('posVeil'), posValue=$('posValue'), posFor=$('posFor');
+const posNote=$('posNote'), padEl=$('pad'), posOk=$('posOk');
+const skipVeil=$('skipVeil'), skipPiece=$('skipPiece'), skipPipe=$('skipPipe');
+const skipCancel=$('skipCancel'), skipPieceSub=$('skipPieceSub'), skipPipeSub=$('skipPipeSub');
+const dimVeil=$('dimVeil');
+const connectBtn=$('connectBtn'), hapticBtn=$('hapticBtn'), undoBtn=$('undoBtn');
+const clearBtn=$('clearBtn'), exportBtn=$('exportBtn');
+const simRange=$('simRange'), simWrap=$('simWrap'), logList=$('logList');
+const mVer=$('mVer'), mKerf=$('mKerf'), mCount=$('mCount');
+const mLink=$('mLink'), mWake=$('mWake'), mSim=$('mSim');
+
 /* ================= state ================= */
 let session = { log: [], doneKeys: {} };
 let dim=null, stockIdx=0, stepIdx=0, seqCache=null;
@@ -499,11 +528,11 @@ function stripRow(st, cls){
   return d;
 }
 function renderStrip(){
-  strip.innerHTML='';
+  stripEl.innerHTML='';
   const all=steps();
-  strip.appendChild(stripRow(all[stepIdx-1],'ghost'));
-  strip.appendChild(stripRow(all[stepIdx],'cur'));
-  strip.appendChild(stripRow(all[stepIdx+1],'ghost'));
+  stripEl.appendChild(stripRow(all[stepIdx-1],'ghost'));
+  stripEl.appendChild(stripRow(all[stepIdx],'cur'));
+  stripEl.appendChild(stripRow(all[stepIdx+1],'ghost'));
   stepCount.textContent = all.length ? 'STEP '+(stepIdx+1)+' / '+all.length : '';
 }
 
@@ -518,7 +547,7 @@ function render(){
     targetNum.textContent='--';
     frameEl.classList.remove('onTarget'); frameEl.classList.add('neutral');
     arrowL.classList.remove('show'); arrowR.classList.remove('show');
-    diffOut.textContent=''; hint.textContent='Dimension complete';
+    diffOut.textContent=''; hintEl.textContent='Dimension complete';
     saveBtn.disabled=true; stopTargetBuzz(); return;
   }
   saveBtn.disabled=false;
@@ -530,7 +559,7 @@ function render(){
     frameEl.style.backgroundColor='';
     arrowL.classList.remove('show'); arrowR.classList.remove('show');
     diffOut.textContent='';
-    hint.textContent = st.piece.id+' \u00b7 '+st.piece.mm+' mm \u00b7 NO CUT, ALREADY FREE';
+    hintEl.textContent = st.piece.id+' \u00b7 '+st.piece.mm+' mm \u00b7 NO CUT, ALREADY FREE';
     saveBtn.textContent='STORE PIECE';
     stopTargetBuzz(); return;
   }
@@ -538,7 +567,7 @@ function render(){
 
   const target=targetFor(st);
   targetNum.textContent=target;
-  hint.textContent = st.type==='trim'
+  hintEl.textContent = st.type==='trim'
     ? 'TRIM TAIL \u00b7 '+st.waste+' mm waste'
     : (mode==='planned'
         ? st.piece.id+' \u2192 piece '+st.piece.mm+' mm'
@@ -575,7 +604,7 @@ function errorColor(err){
 function attemptSave(){
   const st=step();
   if(!st || pendingStep) return;
-  if (isDone(st)){ status.textContent='Already recorded \u2014 moving on.'; advance(); return; }
+  if (isDone(st)){ statusLine.textContent='Already recorded \u2014 moving on.'; advance(); return; }
   if (mode==='planned' && !stockLoaded){ openGate(); return; }
 
   if (st.type==='trim'){
@@ -594,7 +623,7 @@ function reject(){
   void frameEl.offsetWidth;
   frameEl.classList.add('reject');
   buzz(BUZZ.reject);
-  status.textContent='Not on target \u2014 nothing recorded.';
+  statusLine.textContent='Not on target \u2014 nothing recorded.';
 }
 frameEl.addEventListener('animationend', e=>{
   if(e.animationName==='rejectFlash'){ frameEl.classList.remove('reject'); rejecting=false; render(); }
@@ -608,7 +637,7 @@ function openPos(){
   posVeil.classList.add('show');
   buzz(BUZZ.ok);
 }
-pad.addEventListener('click', e=>{
+padEl.addEventListener('click', e=>{
   const k=e.target.dataset.k; if(!k) return;
   poke();
   if (k==='del') posBuf=posBuf.slice(0,-1);
@@ -635,7 +664,7 @@ function record(st,status_,location,comment){
 
 function commitPos(){
   const comment = posNote.classList.contains('show') ? posNote.value.trim() : '';
-  if (posBuf==='' && !comment){ buzz(BUZZ.need); status.textContent='Enter a position or a comment.'; return; }
+  if (posBuf==='' && !comment){ buzz(BUZZ.need); statusLine.textContent='Enter a position or a comment.'; return; }
   record(pendingStep,'cut', posBuf===''?'':String(Number(posBuf)), comment);
   pendingStep=null;
   posVeil.classList.remove('show');
@@ -645,7 +674,7 @@ function commitPos(){
 
 function advance(){
   const prev=stockIdx;
-  if (!advanceToNextUndone(true)){ status.textContent='Everything on '+dim+' is done.'; renderAll(); return; }
+  if (!advanceToNextUndone(true)){ statusLine.textContent='Everything on '+dim+' is done.'; renderAll(); return; }
   if (stockIdx!==prev){ stockLoaded=false; renderAll(); openGate(); return; }
   renderAll();
 }
@@ -692,17 +721,17 @@ modeChip.onclick = ()=>{
   if (mode==='planned'){
     mode='relative'; zeroRef=currentMm;
     modeChip.textContent='REL'; modeChip.classList.add('rel');
-    status.textContent='Relative \u2014 zero anywhere, measure off the free end.';
+    statusLine.textContent='Relative \u2014 zero anywhere, measure off the free end.';
   } else {
     mode='planned';
     modeChip.textContent='PLAN'; modeChip.classList.remove('rel');
-    status.textContent='Planned \u2014 absolute readings from the clamped end.';
+    statusLine.textContent='Planned \u2014 absolute readings from the clamped end.';
   }
   buzz(BUZZ.ok); renderAll();
 };
 zeroBtn.onclick = ()=>{
   zeroRef=currentMm; buzz(BUZZ.confirm);
-  status.textContent='Zeroed at '+Math.round(zeroRef)+' mm.';
+  statusLine.textContent='Zeroed at '+Math.round(zeroRef)+' mm.';
   poke(); render();
 };
 
@@ -736,20 +765,20 @@ function renderMenu(){
 }
 
 hapticBtn.onclick = ()=>{
-  if(!('vibrate' in navigator)){ status.textContent='No vibration hardware here.'; return; }
+  if(!('vibrate' in navigator)){ statusLine.textContent='No vibration hardware here.'; return; }
   haptics=!haptics;
   if(!haptics) stopTargetBuzz(); else navigator.vibrate(BUZZ.confirm);
   renderMenu();
 };
 
 undoBtn.onclick = ()=>{
-  if(!session.log.length){ status.textContent='Nothing to undo.'; return; }
+  if(!session.log.length){ statusLine.textContent='Nothing to undo.'; return; }
   const last=session.log.pop();
   if(last.key) delete session.doneKeys[last.key];
   saveSession();
   menuVeil.classList.remove('show');
   advanceToNextUndone(false);
-  status.textContent='Undid '+last.pieceId+'.';
+  statusLine.textContent='Undid '+last.pieceId+'.';
   renderAll();
 };
 
@@ -769,11 +798,11 @@ clearBtn.onclick = ()=>{
   clearBtn.innerHTML='Clear all stored data<small>Deletes every cut record on this device</small>';
   menuVeil.classList.remove('show');
   setDim(dim);
-  status.textContent='All records cleared.';
+  statusLine.textContent='All records cleared.';
 };
 
 exportBtn.onclick = ()=>{
-  if(!session.log.length){ status.textContent='Nothing to export yet.'; return; }
+  if(!session.log.length){ statusLine.textContent='Nothing to export yet.'; return; }
   const rows=[['dimension','stock_id','stock_label','stock_kind','stock_length_mm',
                'piece_id','piece_mm','tape_reading_mm','step_type','mode',
                'status','position','comment','timestamp']];
@@ -787,7 +816,7 @@ exportBtn.onclick = ()=>{
   a.href=URL.createObjectURL(blob);
   a.download='cuts-'+new Date().toISOString().slice(0,10)+'.csv';
   a.click(); URL.revokeObjectURL(a.href);
-  status.textContent='Exported '+session.log.length+' rows.';
+  statusLine.textContent='Exported '+session.log.length+' rows.';
 };
 
 simRange.addEventListener('input', ()=>{
@@ -838,9 +867,9 @@ setInterval(()=>{
 connectBtn.onclick = async ()=>{
   poke();
   if(device && device.gatt.connected){ device.gatt.disconnect(); return; }
-  if(!navigator.bluetooth){ status.textContent='Web Bluetooth unavailable in this browser.'; return; }
+  if(!navigator.bluetooth){ statusLine.textContent='Web Bluetooth unavailable in this browser.'; return; }
   try{
-    status.textContent='Pick your tape\u2026';
+    statusLine.textContent='Pick your tape\u2026';
     device = await navigator.bluetooth.requestDevice({
       acceptAllDevices:true,
       optionalServices:[POSITION_SERVICE,SYNC_SERVICE,BATTERY_SERVICE]
@@ -858,11 +887,11 @@ connectBtn.onclick = async ()=>{
     running=true;
     acquireWakeLock();
     menuVeil.classList.remove('show');
-    status.textContent = commChar ? 'Live \u2014 press save on the tape.' : 'Live view only.';
+    statusLine.textContent = commChar ? 'Live \u2014 press save on the tape.' : 'Live view only.';
     renderAll();
     tick();
   }catch(err){
-    status.textContent = err.name==='NotFoundError'
+    statusLine.textContent = err.name==='NotFoundError'
       ? 'No tape selected. Wake it by pulling the blade first.'
       : 'Error: '+err.message;
   }
@@ -892,17 +921,31 @@ function onDisconnect(){
   running=false; stopTargetBuzz();
   clearTimeout(pollTimer); pollTimer=null; liveChar=null; commChar=null;
   releaseWakeLock();
-  status.textContent='Tape disconnected.';
+  statusLine.textContent='Tape disconnected.';
   renderAll();
 }
 
 saveBtn.onclick = ()=>{ poke(); attemptSave(); };
 
-if('serviceWorker' in navigator)
-  window.addEventListener('load', ()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+/* Register the service worker, and reload once when a new one takes
+   over so a deploy lands on the next app start without any manual
+   cache clearing. The guard stops it looping. */
+if ('serviceWorker' in navigator) {
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloading) return;
+    reloading = true;
+    location.reload();
+  });
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      reg.update();                                   // check on every start
+      setInterval(() => reg.update(), 5 * 60 * 1000); // and periodically
+    }).catch(()=>{});
+  });
+}
 
 /* ================= boot ================= */
-const frameEl=$('frame');
 loadStored();
 Object.keys(DATA).forEach(name=>{
   const o=document.createElement('option'); o.value=name; o.textContent=name; dimSel.appendChild(o);
@@ -910,7 +953,7 @@ Object.keys(DATA).forEach(name=>{
 dimSel.onchange = ()=>{ poke(); setDim(dimSel.value); };
 setPowerStage(0);
 setDim(Object.keys(DATA)[0]);
-status.textContent='Ready.';
+statusLine.textContent='Ready.';
 </script>
 </body>
 </html>
