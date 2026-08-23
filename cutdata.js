@@ -12,6 +12,34 @@
 
 const DATA = {
 
+  /* ================= 22 mm risers, level 1 =================
+     Quick job: 6 m bars cut into 2 x 2361 and 2 x 639.
+     2361 + 2361 + 639 + 639 = 6000 exactly, so there is no waste tail
+     and therefore no trim step - the first cut is straight at 5361.
+     Three cuts per bar; the leftmost 2361 is left as the free stub. */
+  "22 mm risers lvl 1": [
+    { id:"R1",  kind:"new", label:"Riser bar 1",  length:6000, pieces:[
+      {id:"R1-A", mm:2361},{id:"R1-B", mm:2361},{id:"R1-C", mm:639},{id:"R1-D", mm:639} ]},
+    { id:"R2",  kind:"new", label:"Riser bar 2",  length:6000, pieces:[
+      {id:"R2-A", mm:2361},{id:"R2-B", mm:2361},{id:"R2-C", mm:639},{id:"R2-D", mm:639} ]},
+    { id:"R3",  kind:"new", label:"Riser bar 3",  length:6000, pieces:[
+      {id:"R3-A", mm:2361},{id:"R3-B", mm:2361},{id:"R3-C", mm:639},{id:"R3-D", mm:639} ]},
+    { id:"R4",  kind:"new", label:"Riser bar 4",  length:6000, pieces:[
+      {id:"R4-A", mm:2361},{id:"R4-B", mm:2361},{id:"R4-C", mm:639},{id:"R4-D", mm:639} ]},
+    { id:"R5",  kind:"new", label:"Riser bar 5",  length:6000, pieces:[
+      {id:"R5-A", mm:2361},{id:"R5-B", mm:2361},{id:"R5-C", mm:639},{id:"R5-D", mm:639} ]},
+    { id:"R6",  kind:"new", label:"Riser bar 6",  length:6000, pieces:[
+      {id:"R6-A", mm:2361},{id:"R6-B", mm:2361},{id:"R6-C", mm:639},{id:"R6-D", mm:639} ]},
+    { id:"R7",  kind:"new", label:"Riser bar 7",  length:6000, pieces:[
+      {id:"R7-A", mm:2361},{id:"R7-B", mm:2361},{id:"R7-C", mm:639},{id:"R7-D", mm:639} ]},
+    { id:"R8",  kind:"new", label:"Riser bar 8",  length:6000, pieces:[
+      {id:"R8-A", mm:2361},{id:"R8-B", mm:2361},{id:"R8-C", mm:639},{id:"R8-D", mm:639} ]},
+    { id:"R9",  kind:"new", label:"Riser bar 9",  length:6000, pieces:[
+      {id:"R9-A", mm:2361},{id:"R9-B", mm:2361},{id:"R9-C", mm:639},{id:"R9-D", mm:639} ]},
+    { id:"R10", kind:"new", label:"Riser bar 10", length:6000, pieces:[
+      {id:"R10-A", mm:2361},{id:"R10-B", mm:2361},{id:"R10-C", mm:639},{id:"R10-D", mm:639} ]}
+  ],
+
   /* ================= 15 mm ================= */
   "15 mm  ELG VSH": [
     { id: "S1", kind: "new", label: "Stock 1 - New", length: 6000, pieces: [
